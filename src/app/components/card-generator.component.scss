@@ -1,0 +1,488 @@
+:host {
+  display: block;
+  font-family: 'Courier New', monospace;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a0f1f 100%);
+  min-height: 100vh;
+  padding: 20px;
+  color: white;
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+h1 {
+  color: white;
+  font-family: 'Press Start 2P', 'Orbitron', 'Roboto', monospace;
+  font-size: 32px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow: 3px 3px 0px #000;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.subtitle {
+  color: #9ca3af;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.rarity-selector {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.rarity-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  background: #374151;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &.selected {
+    transform: scale(1.05);
+  }
+
+  &.common.selected {
+    background: #6b7280;
+  }
+
+  &.rare.selected {
+    background: #3b82f6;
+  }
+
+  &.epic.selected {
+    background: #a855f7;
+  }
+
+  &.legendary.selected {
+    background: #fbbf24;
+    color: #000;
+  }
+
+  &.mythic.selected {
+    background: #22d3ee;
+    color: #000;
+  }
+}
+
+.cards-container {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.card-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.card {
+  width: 420px;
+  height: 600px;
+  background: #6b7280;
+  border-radius: 15px;
+  border: 13px solid #6b7280;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  &.common {
+    border-color: #6b7280;
+    background: #6b7280;
+  }
+
+  &.rare {
+    border-color: #3b82f6;
+    background: #3b82f6;
+  }
+
+  &.epic {
+    border-color: #a855f7;
+    background: #a855f7;
+  }
+
+  &.legendary {
+    border-color: #fbbf24;
+    background: #fbbf24;
+    box-shadow: 0 20px 40px rgba(251, 191, 36, 0.3);
+  }
+
+  &.mythic {
+    border-color: #22d3ee;
+    background: #22d3ee;
+    box-shadow: 0 20px 40px rgba(34, 211, 238, 0.4);
+    animation: mythicGlow 2s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes mythicGlow {
+  from {
+    box-shadow: 0 20px 40px rgba(34, 211, 238, 0.4);
+  }
+  to {
+    box-shadow: 0 25px 50px rgba(34, 211, 238, 0.6);
+  }
+}
+
+.rarity-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 5px 9px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  z-index: 10;
+}
+
+.card-header {
+  height: 52px;
+  padding: 0 14px;
+  background: rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px 10px 0 0;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-title {
+  color: #fff;
+  font-family: 'Press Start 2P', 'Orbitron', 'Roboto', monospace;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0px #000;
+}
+
+.card-id-display {
+  position: absolute;
+  right: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-family: monospace;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.card-art {
+  flex: 1;
+  width: 394px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: #6b7280;
+  padding: 0;
+  overflow: hidden;
+
+  canvas {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    width: 100%;
+    height: 100%;
+    display: block;
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-font-smoothing: none;
+    object-fit: contain;
+  }
+}
+
+.card.common .card-art {
+  background: #6b7280;
+}
+
+.card.rare .card-art {
+  background: #3b82f6;
+}
+
+.card.epic .card-art {
+  background: #a855f7;
+}
+
+.card.legendary .card-art {
+  background: #fbbf24;
+}
+
+.card.mythic .card-art {
+  background: #22d3ee;
+}
+
+.card-footer {
+  width: 100%;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 0 0 10px 10px;
+  flex-shrink: 0;
+}
+
+.card-footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.card-info {
+  flex: 1;
+  text-align: left;
+}
+
+.card-desc {
+  color: #ffffff;
+  font-size: 19px;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.qr-container {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  background: white;
+  padding: 3px;
+  border-radius: 6px;
+  margin-left: 8px;
+  margin-right: 8px;
+
+  img {
+    image-rendering: auto;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+}
+
+.card-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center;
+
+  select {
+    flex: 1;
+    padding: 8px;
+    background: #374151;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+}
+
+.download-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.main-controls {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+
+  button {
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #4a00e0 0%, #8e2de2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    }
+  }
+}
+
+.pack-cover-section {
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 2px solid #374151;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  h2 {
+    color: #22d3ee;
+    font-family: 'Press Start 2P', 'Orbitron', 'Roboto', monospace;
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0px #000;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+}
+
+.pack-cover-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.pack-cover-wrapper {
+  width: 600px;
+  height: 800px;
+  background: linear-gradient(135deg, #1a0f1f 0%, #2a1f3f 100%);
+  border-radius: 20px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+  position: relative;
+  overflow: hidden;
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+}
+
+.pack-cover-controls {
+  display: flex;
+  gap: 20px;
+
+  button {
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+
+    &:first-child {
+      background: linear-gradient(135deg, #22d3ee 0%, #a855f7 100%);
+    }
+
+    &:last-child {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    }
+  }
+}
+
+@media (max-width: 1400px) {
+  .cards-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .card {
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  }
+
+  canvas {
+    transform: translateZ(0) scale(1.0);
+    transform-origin: center;
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  .card-art {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+}
