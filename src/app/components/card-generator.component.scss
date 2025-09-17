@@ -336,6 +336,11 @@ h1 {
     border-radius: 4px;
     font-size: 14px;
   }
+
+  .mood-combo,
+  .personality-combo {
+    flex: 1;
+  }
 }
 
 .download-btn {

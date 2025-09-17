@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CardData, MOODS, PERSONALITIES, Rarity } from '../models/types';
 import { PixelBoboService } from '../services/pixel-bobo.service';
+import { ComboBoxComponent } from './combo-box.component';
 
 declare global {
   interface Window {
@@ -11,7 +12,7 @@ declare global {
 
 @Component({
   selector: 'app-card-generator',
-  imports: [CommonModule],
+  imports: [CommonModule, ComboBoxComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="main-container">
@@ -68,22 +69,20 @@ declare global {
             </div>
 
             <div class="card-controls">
-              <select
+              <app-combo-box
+                [options]="moods"
                 [value]="card.mood"
-                (change)="updateMood(i, $event)"
-                class="mood-select">
-                @for (mood of moods; track mood) {
-                  <option [value]="mood">{{mood}}</option>
-                }
-              </select>
-              <select
+                placeholder="Select or type mood..."
+                (valueChange)="updateMood(i, $event)"
+                class="mood-combo">
+              </app-combo-box>
+              <app-combo-box
+                [options]="personalities"
                 [value]="card.personality"
-                (change)="updatePersonality(i, $event)"
-                class="personality-select">
-                @for (personality of personalities; track personality) {
-                  <option [value]="personality">{{personality.toUpperCase()}}</option>
-                }
-              </select>
+                placeholder="Select or type personality..."
+                (valueChange)="updatePersonality(i, $event)"
+                class="personality-combo">
+              </app-combo-box>
             </div>
 
             <button class="download-btn" (click)="downloadCard(i)">Download #{{i + 1}}</button>
@@ -162,19 +161,13 @@ export class CardGeneratorComponent implements OnInit {
     this.pixelBoboService.generateBobo(canvas, card.seed, card.rarity);
   }
 
-  protected updateMood(index: number, event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const mood = target.value;
-
+  protected updateMood(index: number, mood: string): void {
     const cards = [...this.cardData()];
     cards[index] = { ...cards[index], mood };
     this.cardData.set(cards);
   }
 
-  protected updatePersonality(index: number, event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const personality = target.value;
-
+  protected updatePersonality(index: number, personality: string): void {
     const cards = [...this.cardData()];
     cards[index] = { ...cards[index], personality };
     this.cardData.set(cards);
