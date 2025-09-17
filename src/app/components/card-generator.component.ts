@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CardData, MOODS, PERSONALITIES, Rarity } from '../models/types';
 import { PixelBoboService } from '../services/pixel-bobo.service';
 import { ComboBoxComponent } from './combo-box.component';
@@ -100,8 +100,9 @@ declare global {
   `,
   styleUrl: './card-generator.component.scss'
 })
-export class CardGeneratorComponent implements OnInit {
+export class CardGeneratorComponent implements OnInit, OnDestroy {
   private pixelBoboService = inject(PixelBoboService);
+  private resizeHandler?: () => void;
 
   protected readonly rarities: readonly Rarity[] = ['common', 'rare', 'epic', 'legendary', 'mythic'];
   protected readonly moods = MOODS;
@@ -113,6 +114,24 @@ export class CardGeneratorComponent implements OnInit {
   ngOnInit(): void {
     this.loadHtml2Canvas();
     this.generateAllBobos();
+
+    // Listen for window resize to adjust card count
+    this.resizeHandler = () => {
+      const currentCardCount = this.cardData().length;
+      const expectedCardCount = this.isMobile() ? 1 : 3;
+
+      if (currentCardCount !== expectedCardCount) {
+        this.generateAllBobos();
+      }
+    };
+
+    window.addEventListener('resize', this.resizeHandler);
+  }
+
+  ngOnDestroy(): void {
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+    }
   }
 
   protected setRarity(rarity: Rarity): void {
@@ -120,11 +139,16 @@ export class CardGeneratorComponent implements OnInit {
     this.generateAllBobos();
   }
 
+  private isMobile(): boolean {
+    return window.innerWidth <= 768;
+  }
+
   protected generateAllBobos(): void {
     const newCards: CardData[] = [];
 
-    // Create 3 cards
-    for (let i = 0; i < 3; i++) {
+    // Create 1 card on mobile, 3 cards on desktop
+    const cardCount = this.isMobile() ? 1 : 3;
+    for (let i = 0; i < cardCount; i++) {
       const seed = Date.now() + Math.random() * 1000000 + i * 1000;
       const personality = this.personalities[Math.floor(Math.random() * this.personalities.length)];
       const mood = this.moods[Math.floor(Math.random() * this.moods.length)];
