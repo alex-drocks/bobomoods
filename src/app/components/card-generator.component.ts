@@ -1,8 +1,7 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { CardData, MOODS, PERSONALITIES, Rarity } from '../models/types';
 import { PixelBoboService } from '../services/pixel-bobo.service';
-import { Rarity, CardData, MOODS, PERSONALITIES } from '../models/types';
 
 declare global {
   interface Window {
@@ -97,24 +96,7 @@ declare global {
         <button (click)="downloadAllCards()">Download All 3</button>
       </div>
 
-      <!-- Pack Cover Generator -->
-      <div class="pack-cover-section">
-        <h2>COVER GENERATOR</h2>
-        <div class="pack-cover-container">
-          <div id="packCoverContainer" class="pack-cover-wrapper">
-            <canvas
-              #packCanvas
-              id="packCanvas"
-              width="600"
-              height="800">
-            </canvas>
-          </div>
-          <div class="pack-cover-controls">
-            <button (click)="generatePackCover()">Generate New Cover</button>
-            <button (click)="downloadPackCover()">Download Pack Cover</button>
-          </div>
-        </div>
-      </div>
+
     </div>
   `,
   styleUrl: './card-generator.component.scss'
@@ -260,27 +242,6 @@ export class CardGeneratorComponent implements OnInit {
         this.downloadCard(index);
       }, index * 500);
     });
-  }
-
-  protected generatePackCover(): void {
-    // TODO: Implement pack cover generator
-    console.log('Pack cover generation not implemented yet');
-  }
-
-  protected downloadPackCover(): void {
-    const canvas = document.getElementById('packCanvas') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    canvas.toBlob((blob: Blob | null) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = `bobo-pack-cover-${Date.now()}.png`;
-        link.href = url;
-        link.click();
-        URL.revokeObjectURL(url);
-      }
-    }, 'image/png', 1.0);
   }
 
   private loadHtml2Canvas(): void {
