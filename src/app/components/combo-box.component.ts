@@ -163,13 +163,13 @@ export class ComboBoxComponent {
     this.selectedValue.set(option);
     this.inputValue.set(option);
     this.highlightedIndex.set(-1);
-    
+
     // Immediately close the dropdown
     this.isOpen.set(false);
     this.showAllOptions.set(false);
 
     this.valueChange.emit(option);
-    
+
     // Focus the input after a short delay to ensure dropdown is closed
     setTimeout(() => {
       this.inputElement().nativeElement.focus();

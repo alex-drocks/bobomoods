@@ -16,8 +16,8 @@ declare global {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="main-container">
-      <h1>BOBO MOODS GENERATOR</h1>
-      <div class="subtitle">Generate 3 variants of the same rarity</div>
+      <h1 class="generator-main-title">BOBO MOODS GENERATOR</h1>
+      <div class="subtitle">Generate random versions using the selected rarity level.</div>
 
       <div class="rarity-selector">
         @for (rarity of rarities; track rarity) {
@@ -91,10 +91,10 @@ declare global {
       </div>
 
       <div class="main-controls">
-        <button (click)="generateAllBobos()">Generate New Variants</button>
-        <button (click)="downloadAllCards()">Download All 3</button>
+        <button class="regen-btn" (click)="generateAllBobos()">
+          REGEN
+        </button>
       </div>
-
 
     </div>
   `,
@@ -107,7 +107,7 @@ export class CardGeneratorComponent implements OnInit {
   protected readonly moods = MOODS;
   protected readonly personalities = PERSONALITIES;
 
-  protected selectedRarity = signal<Rarity>('common');
+  protected selectedRarity = signal<Rarity>('rare');
   protected cardData = signal<CardData[]>([]);
 
   ngOnInit(): void {

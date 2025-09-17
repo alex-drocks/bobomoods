@@ -1,4 +1,54 @@
 <div class="app-container">
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 class="hero-title">
+          <span class="hero-title-main">BOBO MOODS</span>
+          <span class="hero-title-sub">Bearish Pixel Art Generator.</span>
+        </h1>
+        <p class="hero-description">
+          Create unique Bobo inspired pixel art.
+          Vibe with the various moods and personalities of the classic bear meme.
+        </p>
+
+        <div class="cta-buttons-container">
+          <button class="cta-button"
+            onclick="document.querySelector('.main-container').scrollIntoView({behavior: 'smooth'})">
+            Generate
+          </button>
+          <a href="https://vibechain.com/market/bobo-moods?ref=D3CUXO6E0RWD" target="_blank" rel="noopener noreferrer">
+            <button class="cta-button">
+              Vibe NFTs
+            </button>
+          </a>
+        </div>
+
+      </div>
+      <div class="hero-visual">
+        <div class="collection-showcase">
+          <a href="https://vibechain.com/market/bobo-moods?ref=D3CUXO6E0RWD" target="_blank" rel="noopener noreferrer">
+            <img
+              ngSrc="/collection.png"
+              alt="BOBO Moods Collection Showcase"
+              class="collection-image"
+              width="1200"
+              height="675"
+              priority />
+            <div class="collection-overlay">
+              <div class="rarity-badges">
+                <span class="rarity-badge common">COMMON</span>
+                <span class="rarity-badge rare">RARE</span>
+                <span class="rarity-badge epic">EPIC</span>
+                <span class="rarity-badge legendary">LEGENDARY</span>
+                <span class="rarity-badge mythic">MYTHIC</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <app-card-generator />
   <router-outlet />
 </div>
