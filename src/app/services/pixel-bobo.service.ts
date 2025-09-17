@@ -9,13 +9,8 @@ export class PixelBoboService {
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
-    ctx.imageSmoothingEnabled = false;
-    (ctx as any).mozImageSmoothingEnabled = false;
-    (ctx as any).webkitImageSmoothingEnabled = false;
-    (ctx as any).msImageSmoothingEnabled = false;
-
+    this.setupCanvasRendering(ctx);
     const random = this.seededRandom(seed);
-
     this.clear(ctx, canvas);
     const palette = PALETTES[rarity];
 
@@ -29,7 +24,6 @@ export class PixelBoboService {
 
     // Generate unique bear shape
     const bearColor = palette.bear[Math.floor(random() * palette.bear.length)];
-    const headVariation = random();
 
     // Head parameters
     const headWidth = 65 + Math.floor(random() * 20);
@@ -78,6 +72,13 @@ export class PixelBoboService {
 
     // Special effects based on rarity
     this.addRarityEffects(ctx, canvas, rarity, headX, headY, headWidth, headHeight, bodyY, bodyWidth, bodyHeight, random);
+  }
+
+  private setupCanvasRendering(ctx: CanvasRenderingContext2D): void {
+    ctx.imageSmoothingEnabled = false;
+    (ctx as any).mozImageSmoothingEnabled = false;
+    (ctx as any).webkitImageSmoothingEnabled = false;
+    (ctx as any).msImageSmoothingEnabled = false;
   }
 
   private seededRandom(seed: number): () => number {
@@ -283,40 +284,39 @@ export class PixelBoboService {
   }
 
   private drawEyes(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, type: number): void {
-    if (type === 0) { // Droopy
-      this.drawDroopyEyes(ctx, x1, y1, x2, y2);
-    } else if (type === 1) { // Tired
-      this.drawTiredEyes(ctx, x1, y1, x2, y2);
-    } else if (type === 2) { // Dead (X)
-      this.drawDeadEyes(ctx, x1, y1, x2, y2);
-    } else if (type === 3) { // Worried
-      this.drawWorriedEyes(ctx, x1, y1, x2, y2);
-    } else if (type === 4) { // Spiral
-      this.drawSpiralEyes(ctx, x1, y1, x2, y2);
-    } else if (type === 5) { // Hearts
-      this.drawHeartEyes(ctx, x1, y1, x2, y2);
-    } else if (type === 6) { // Dollar signs
-      this.drawDollarEyes(ctx, x1, y1, x2, y2);
-    } else { // Winking
-      this.drawWinkingEyes(ctx, x1, y1, x2, y2);
+    const eyeDrawers = [
+      () => this.drawDroopyEyes(ctx, x1, y1, x2, y2),
+      () => this.drawTiredEyes(ctx, x1, y1, x2, y2),
+      () => this.drawDeadEyes(ctx, x1, y1, x2, y2),
+      () => this.drawWorriedEyes(ctx, x1, y1, x2, y2),
+      () => this.drawSpiralEyes(ctx, x1, y1, x2, y2),
+      () => this.drawHeartEyes(ctx, x1, y1, x2, y2),
+      () => this.drawDollarEyes(ctx, x1, y1, x2, y2),
+      () => this.drawWinkingEyes(ctx, x1, y1, x2, y2)
+    ];
+
+    eyeDrawers[type]?.();
+  }
+
+  private drawBasicEye(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, color: string): void {
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        this.drawPixel(ctx, x + i, y + j, color);
+      }
     }
   }
 
   private drawDroopyEyes(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number): void {
-    for (let i = 0; i < 8; i++) {
-      this.drawPixel(ctx, x1 + i, y1, '#FFF');
-      this.drawPixel(ctx, x1 + i, y1 + 1, '#FFF');
-      this.drawPixel(ctx, x1 + i, y1 + 2, '#FFF');
-    }
-    this.drawCircle(ctx, x1 + 3, y1 + 2, 2, '#000');
-    this.drawPixel(ctx, x1 + 4, y1 + 1, '#FFF');
+    // Draw base eye shape for both eyes
+    this.drawBasicEye(ctx, x1, y1, 8, 3, '#FFF');
+    this.drawBasicEye(ctx, x2, y2, 8, 3, '#FFF');
 
-    for (let i = 0; i < 8; i++) {
-      this.drawPixel(ctx, x2 + i, y2, '#FFF');
-      this.drawPixel(ctx, x2 + i, y2 + 1, '#FFF');
-      this.drawPixel(ctx, x2 + i, y2 + 2, '#FFF');
-    }
+    // Draw pupils
+    this.drawCircle(ctx, x1 + 3, y1 + 2, 2, '#000');
     this.drawCircle(ctx, x2 + 3, y2 + 2, 2, '#000');
+
+    // Highlight
+    this.drawPixel(ctx, x1 + 4, y1 + 1, '#FFF');
     this.drawPixel(ctx, x2 + 4, y2 + 1, '#FFF');
 
     // Eye bags
@@ -327,12 +327,11 @@ export class PixelBoboService {
   }
 
   private drawTiredEyes(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number): void {
-    for (let i = 0; i < 7; i++) {
-      this.drawPixel(ctx, x1 + i, y1, '#000');
-      this.drawPixel(ctx, x1 + i, y1 + 1, '#000');
-      this.drawPixel(ctx, x2 + i, y2, '#000');
-      this.drawPixel(ctx, x2 + i, y2 + 1, '#000');
-    }
+    // Draw closed eyes
+    this.drawBasicEye(ctx, x1, y1, 7, 2, '#000');
+    this.drawBasicEye(ctx, x2, y2, 7, 2, '#000');
+
+    // Eye bags
     for (let i = 0; i < 6; i++) {
       this.drawPixel(ctx, x1 + i, y1 + 4, '#4a3c28');
       this.drawPixel(ctx, x2 + i, y2 + 4, '#4a3c28');
@@ -372,56 +371,45 @@ export class PixelBoboService {
   }
 
   private drawHeartEyes(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number): void {
-    // Heart shape
     const heartColor = '#FF1493';
-    this.drawPixel(ctx, x1 + 2, y1, heartColor);
-    this.drawPixel(ctx, x1 + 3, y1, heartColor);
-    this.drawPixel(ctx, x1 + 5, y1, heartColor);
-    this.drawPixel(ctx, x1 + 6, y1, heartColor);
-    for (let i = 1; i < 7; i++) {
-      this.drawPixel(ctx, x1 + i, y1 + 1, heartColor);
-    }
-    for (let i = 2; i < 6; i++) {
-      this.drawPixel(ctx, x1 + i, y1 + 2, heartColor);
-    }
-    this.drawPixel(ctx, x1 + 3, y1 + 3, heartColor);
-    this.drawPixel(ctx, x1 + 4, y1 + 3, heartColor);
+    const positions = [x1, x2];
+    const yPositions = [y1, y2];
 
-    // Right heart
-    this.drawPixel(ctx, x2 + 2, y2, heartColor);
-    this.drawPixel(ctx, x2 + 3, y2, heartColor);
-    this.drawPixel(ctx, x2 + 5, y2, heartColor);
-    this.drawPixel(ctx, x2 + 6, y2, heartColor);
-    for (let i = 1; i < 7; i++) {
-      this.drawPixel(ctx, x2 + i, y2 + 1, heartColor);
-    }
-    for (let i = 2; i < 6; i++) {
-      this.drawPixel(ctx, x2 + i, y2 + 2, heartColor);
-    }
-    this.drawPixel(ctx, x2 + 3, y2 + 3, heartColor);
-    this.drawPixel(ctx, x2 + 4, y2 + 3, heartColor);
+    positions.forEach((x, index) => {
+      const y = yPositions[index];
+      // Heart shape pattern
+      this.drawPixel(ctx, x + 2, y, heartColor);
+      this.drawPixel(ctx, x + 3, y, heartColor);
+      this.drawPixel(ctx, x + 5, y, heartColor);
+      this.drawPixel(ctx, x + 6, y, heartColor);
+
+      for (let i = 1; i < 7; i++) {
+        this.drawPixel(ctx, x + i, y + 1, heartColor);
+      }
+      for (let i = 2; i < 6; i++) {
+        this.drawPixel(ctx, x + i, y + 2, heartColor);
+      }
+      this.drawPixel(ctx, x + 3, y + 3, heartColor);
+      this.drawPixel(ctx, x + 4, y + 3, heartColor);
+    });
   }
 
   private drawDollarEyes(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number): void {
     const dollarColor = '#00FF00';
-    // $ shape simplified
-    for (let i = 0; i < 5; i++) {
-      this.drawPixel(ctx, x1 + 3, y1 + i, dollarColor);
-      this.drawPixel(ctx, x2 + 3, y2 + i, dollarColor);
-    }
-    this.drawPixel(ctx, x1 + 2, y1, dollarColor);
-    this.drawPixel(ctx, x1 + 4, y1, dollarColor);
-    this.drawPixel(ctx, x1 + 2, y1 + 2, dollarColor);
-    this.drawPixel(ctx, x1 + 4, y1 + 2, dollarColor);
-    this.drawPixel(ctx, x1 + 2, y1 + 4, dollarColor);
-    this.drawPixel(ctx, x1 + 4, y1 + 4, dollarColor);
+    const positions = [x1, x2];
+    const yPositions = [y1, y2];
 
-    this.drawPixel(ctx, x2 + 2, y2, dollarColor);
-    this.drawPixel(ctx, x2 + 4, y2, dollarColor);
-    this.drawPixel(ctx, x2 + 2, y2 + 2, dollarColor);
-    this.drawPixel(ctx, x2 + 4, y2 + 2, dollarColor);
-    this.drawPixel(ctx, x2 + 2, y2 + 4, dollarColor);
-    this.drawPixel(ctx, x2 + 4, y2 + 4, dollarColor);
+    positions.forEach((x, index) => {
+      const y = yPositions[index];
+      // $ shape simplified
+      for (let i = 0; i < 5; i++) {
+        this.drawPixel(ctx, x + 3, y + i, dollarColor);
+      }
+      [0, 2, 4].forEach(offset => {
+        this.drawPixel(ctx, x + 2, y + offset, dollarColor);
+        this.drawPixel(ctx, x + 4, y + offset, dollarColor);
+      });
+    });
   }
 
   private drawWinkingEyes(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number): void {
@@ -466,31 +454,29 @@ export class PixelBoboService {
   }
 
   private drawMouth(ctx: CanvasRenderingContext2D, x: number, y: number, type: number): void {
-    if (type === 0) { // Frown
-      this.drawFrown(ctx, x, y);
-    } else if (type === 1) { // Neutral
-      this.drawNeutralMouth(ctx, x, y);
-    } else if (type === 2) { // Ironic smile
-      this.drawIronicSmile(ctx, x, y);
-    } else { // Default neutral
-      this.drawNeutralMouth(ctx, x, y);
-    }
+    const mouthDrawers = [
+      () => this.drawFrown(ctx, x, y),
+      () => this.drawNeutralMouth(ctx, x, y),
+      () => this.drawIronicSmile(ctx, x, y),
+      () => this.drawNeutralMouth(ctx, x, y) // Default case
+    ];
+
+    mouthDrawers[type] || mouthDrawers[3]();
+  }
+
+  private drawMouthLine(ctx: CanvasRenderingContext2D, x: number, y: number, pattern: Array<{dx: number, dy: number}>): void {
+    pattern.forEach(({dx, dy}) => {
+      this.drawPixel(ctx, x + dx, y + dy, '#000');
+    });
   }
 
   private drawFrown(ctx: CanvasRenderingContext2D, x: number, y: number): void {
-    this.drawPixel(ctx, x - 6, y, '#000');
-    this.drawPixel(ctx, x - 5, y + 1, '#000');
-    this.drawPixel(ctx, x - 4, y + 2, '#000');
-    this.drawPixel(ctx, x - 3, y + 2, '#000');
-    this.drawPixel(ctx, x - 2, y + 2, '#000');
-    this.drawPixel(ctx, x - 1, y + 2, '#000');
-    this.drawPixel(ctx, x, y + 2, '#000');
-    this.drawPixel(ctx, x + 1, y + 2, '#000');
-    this.drawPixel(ctx, x + 2, y + 2, '#000');
-    this.drawPixel(ctx, x + 3, y + 2, '#000');
-    this.drawPixel(ctx, x + 4, y + 2, '#000');
-    this.drawPixel(ctx, x + 5, y + 1, '#000');
-    this.drawPixel(ctx, x + 6, y, '#000');
+    const frown = [
+      {dx: -6, dy: 0}, {dx: -5, dy: 1}, {dx: -4, dy: 2}, {dx: -3, dy: 2},
+      {dx: -2, dy: 2}, {dx: -1, dy: 2}, {dx: 0, dy: 2}, {dx: 1, dy: 2},
+      {dx: 2, dy: 2}, {dx: 3, dy: 2}, {dx: 4, dy: 2}, {dx: 5, dy: 1}, {dx: 6, dy: 0}
+    ];
+    this.drawMouthLine(ctx, x, y, frown);
   }
 
   private drawNeutralMouth(ctx: CanvasRenderingContext2D, x: number, y: number): void {
@@ -500,19 +486,12 @@ export class PixelBoboService {
   }
 
   private drawIronicSmile(ctx: CanvasRenderingContext2D, x: number, y: number): void {
-    this.drawPixel(ctx, x - 6, y + 2, '#000');
-    this.drawPixel(ctx, x - 5, y + 1, '#000');
-    this.drawPixel(ctx, x - 4, y, '#000');
-    this.drawPixel(ctx, x - 3, y, '#000');
-    this.drawPixel(ctx, x - 2, y, '#000');
-    this.drawPixel(ctx, x - 1, y, '#000');
-    this.drawPixel(ctx, x, y, '#000');
-    this.drawPixel(ctx, x + 1, y, '#000');
-    this.drawPixel(ctx, x + 2, y, '#000');
-    this.drawPixel(ctx, x + 3, y, '#000');
-    this.drawPixel(ctx, x + 4, y, '#000');
-    this.drawPixel(ctx, x + 5, y + 1, '#000');
-    this.drawPixel(ctx, x + 6, y + 2, '#000');
+    const smile = [
+      {dx: -6, dy: 2}, {dx: -5, dy: 1}, {dx: -4, dy: 0}, {dx: -3, dy: 0},
+      {dx: -2, dy: 0}, {dx: -1, dy: 0}, {dx: 0, dy: 0}, {dx: 1, dy: 0},
+      {dx: 2, dy: 0}, {dx: 3, dy: 0}, {dx: 4, dy: 0}, {dx: 5, dy: 1}, {dx: 6, dy: 2}
+    ];
+    this.drawMouthLine(ctx, x, y, smile);
   }
 
   private addFurPatches(ctx: CanvasRenderingContext2D, headX: number, headY: number, headWidth: number, headHeight: number, palette: any, random: () => number): void {

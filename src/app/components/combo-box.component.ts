@@ -1,9 +1,7 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, input, output, signal, viewChild } from '@angular/core';
 
 @Component({
   selector: 'app-combo-box',
-  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="combo-box" [class.open]="isOpen()">
@@ -126,15 +124,14 @@ export class ComboBoxComponent {
   }
 
   protected onBlur(): void {
-    // Delay closing to allow option clicks to register
-    setTimeout(() => {
-      this.isOpen.set(false);
-      this.showAllOptions.set(false);
-      this.highlightedIndex.set(-1);
-    }, 150);
+    this.closeDropdownDelayed();
   }
 
   protected onToggleBlur(): void {
+    this.closeDropdownDelayed();
+  }
+
+  private closeDropdownDelayed(): void {
     // Delay closing to allow option clicks to register
     setTimeout(() => {
       this.isOpen.set(false);
@@ -178,47 +175,45 @@ export class ComboBoxComponent {
 
   protected onKeyDown(event: KeyboardEvent): void {
     const filteredOpts = this.filteredOptions();
-
-    switch (event.key) {
-      case 'ArrowDown':
+    const keyActions: Record<string, () => void> = {
+      ArrowDown: () => {
         event.preventDefault();
-        if (!this.isOpen()) {
-          this.isOpen.set(true);
-          this.showAllOptions.set(true); // Show all options when opening via keyboard
-        }
+        this.openDropdownWithAllOptions();
         this.highlightedIndex.update(index =>
           index < filteredOpts.length - 1 ? index + 1 : 0
         );
-        break;
-
-      case 'ArrowUp':
+      },
+      ArrowUp: () => {
         event.preventDefault();
-        if (!this.isOpen()) {
-          this.isOpen.set(true);
-          this.showAllOptions.set(true); // Show all options when opening via keyboard
-        }
+        this.openDropdownWithAllOptions();
         this.highlightedIndex.update(index =>
           index > 0 ? index - 1 : filteredOpts.length - 1
         );
-        break;
-
-      case 'Enter':
+      },
+      Enter: () => {
         event.preventDefault();
         const highlightedIdx = this.highlightedIndex();
         if (this.isOpen() && highlightedIdx >= 0 && filteredOpts[highlightedIdx]) {
           this.selectOption(filteredOpts[highlightedIdx]);
         } else {
-          // User pressed enter with custom text
           this.isOpen.set(false);
         }
-        break;
-
-      case 'Escape':
+      },
+      Escape: () => {
         event.preventDefault();
         this.isOpen.set(false);
         this.showAllOptions.set(false);
         this.highlightedIndex.set(-1);
-        break;
+      }
+    };
+
+    keyActions[event.key]?.();
+  }
+
+  private openDropdownWithAllOptions(): void {
+    if (!this.isOpen()) {
+      this.isOpen.set(true);
+      this.showAllOptions.set(true);
     }
   }
 }

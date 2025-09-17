@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CardData, MOODS, PERSONALITIES, Rarity } from '../models/types';
 import { PixelBoboService } from '../services/pixel-bobo.service';
@@ -12,7 +11,7 @@ declare global {
 
 @Component({
   selector: 'app-card-generator',
-  imports: [CommonModule, ComboBoxComponent],
+  imports: [ComboBoxComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="main-container">
@@ -215,50 +214,53 @@ export class CardGeneratorComponent implements OnInit, OnDestroy {
         imageTimeout: 0,
         removeContainer: false,
         onclone: (clonedDoc: Document) => {
-          const clonedCanvas = clonedDoc.getElementById(`boboCanvas-${index}`) as HTMLCanvasElement;
-          if (clonedCanvas) {
-            const ctx = clonedCanvas.getContext('2d', { alpha: false });
-            if (ctx) {
-              ctx.imageSmoothingEnabled = false;
-              (ctx as any).mozImageSmoothingEnabled = false;
-              (ctx as any).webkitImageSmoothingEnabled = false;
-              (ctx as any).msImageSmoothingEnabled = false;
-            }
-            clonedCanvas.style.imageRendering = 'pixelated';
-            clonedCanvas.style.imageRendering = 'crisp-edges';
-            clonedCanvas.style.imageRendering = '-moz-crisp-edges';
-          }
-          const allElements = clonedDoc.querySelectorAll('*');
-          allElements.forEach(el => {
-            const element = el as HTMLElement;
-            element.style.imageRendering = 'pixelated';
-            element.style.imageRendering = 'crisp-edges';
-            (element.style as any).fontSmooth = 'never';
-            (element.style as any).webkitFontSmoothing = 'none';
-          });
+          this.setupCanvasForDownload(clonedDoc, index);
+          this.setupElementsForDownload(clonedDoc);
         }
       }).then((canvas: HTMLCanvasElement) => {
         canvas.toBlob((blob: Blob | null) => {
           if (blob) {
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.download = `bobo-${data.rarity}-${data.mood}-${data.personality}-HD.png`;
-            link.href = url;
-            link.click();
-            URL.revokeObjectURL(url);
+            this.downloadBlob(blob, data);
           }
         }, 'image/png', 1.0);
       });
     }
   }
 
-  protected downloadAllCards(): void {
-    // Download each card with a small delay to prevent browser issues
-    this.cardData().forEach((_, index) => {
-      setTimeout(() => {
-        this.downloadCard(index);
-      }, index * 500);
+  private setupCanvasForDownload(clonedDoc: Document, index: number): void {
+    const clonedCanvas = clonedDoc.getElementById(`boboCanvas-${index}`) as HTMLCanvasElement;
+    if (clonedCanvas) {
+      const ctx = clonedCanvas.getContext('2d', { alpha: false });
+      if (ctx) {
+        ctx.imageSmoothingEnabled = false;
+        (ctx as any).mozImageSmoothingEnabled = false;
+        (ctx as any).webkitImageSmoothingEnabled = false;
+        (ctx as any).msImageSmoothingEnabled = false;
+      }
+      clonedCanvas.style.imageRendering = 'pixelated';
+      clonedCanvas.style.imageRendering = 'crisp-edges';
+      clonedCanvas.style.imageRendering = '-moz-crisp-edges';
+    }
+  }
+
+  private setupElementsForDownload(clonedDoc: Document): void {
+    const allElements = clonedDoc.querySelectorAll('*');
+    allElements.forEach(el => {
+      const element = el as HTMLElement;
+      element.style.imageRendering = 'pixelated';
+      element.style.imageRendering = 'crisp-edges';
+      (element.style as any).fontSmooth = 'never';
+      (element.style as any).webkitFontSmoothing = 'none';
     });
+  }
+
+  private downloadBlob(blob: Blob, data: CardData): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `bobo-${data.rarity}-${data.mood}-${data.personality}-HD.png`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   private loadHtml2Canvas(): void {
