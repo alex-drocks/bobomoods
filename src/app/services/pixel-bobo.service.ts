@@ -243,6 +243,11 @@ export class PixelBoboService {
     const eyeY = headY + 22;
     this.drawEyes(ctx, headX + 20, eyeY, headX + headWidth - 20, eyeY, eyeType);
 
+    // Add eye accessories (glasses, monocle, etc.)
+    if (random() > 0.7) {
+      this.addEyeAccessory(ctx, headX, headY, headWidth, headHeight, random);
+    }
+
     // Snout with variations
     const snoutWidth = 24 + Math.floor(random() * 8);
     const snoutHeight = 16 + Math.floor(random() * 5);
@@ -255,6 +260,134 @@ export class PixelBoboService {
     // Mouth with more expressions
     const mouthType = Math.floor(random() * 7);
     this.drawMouth(ctx, 50, headY + 48, mouthType);
+
+    // Additional facial features
+    if (random() > 0.6) {
+      this.addFacialFeature(ctx, headX, headY, headWidth, headHeight, rarity, random);
+    }
+  }
+
+  private addEyeAccessory(ctx: CanvasRenderingContext2D, headX: number, headY: number, headWidth: number, headHeight: number, random: () => number): void {
+    const accessoryType = Math.floor(random() * 4);
+
+    if (accessoryType === 0) { // Sunglasses
+      const glassY = headY + 22;
+      for (let i = 0; i < 12; i++) {
+        this.drawPixel(ctx, headX + 18 + i, glassY, '#000');
+        this.drawPixel(ctx, headX + 18 + i, glassY + 1, '#000');
+        this.drawPixel(ctx, headX + headWidth - 30 + i, glassY, '#000');
+        this.drawPixel(ctx, headX + headWidth - 30 + i, glassY + 1, '#000');
+      }
+      for (let i = 30; i < headWidth - 30; i++) {
+        if (i % 2 === 0) this.drawPixel(ctx, headX + i, glassY - 1, '#000');
+      }
+    } else if (accessoryType === 1) { // Monocle
+      const monocleX = headX + headWidth - 25;
+      const monocleY = headY + 22;
+      for (let i = 0; i < 10; i++) {
+        this.drawPixel(ctx, monocleX + i, monocleY - 2, '#FFD700');
+        this.drawPixel(ctx, monocleX + i, monocleY + 5, '#FFD700');
+      }
+      for (let j = -1; j < 5; j++) {
+        this.drawPixel(ctx, monocleX - 1, monocleY + j, '#FFD700');
+        this.drawPixel(ctx, monocleX + 10, monocleY + j, '#FFD700');
+      }
+      // Chain
+      for (let i = 0; i < 8; i++) {
+        if (i % 2 === 0) this.drawPixel(ctx, monocleX + 10 + i, monocleY + 2 + i, '#FFD700');
+      }
+    } else if (accessoryType === 2) { // Eyepatch
+      const patchY = headY + 20;
+      for (let i = 0; i < 12; i++) {
+        for (let j = 0; j < 8; j++) {
+          this.drawPixel(ctx, headX + 18 + i, patchY + j, '#000');
+        }
+      }
+      // Strap
+      for (let i = 0; i < 15; i++) {
+        this.drawPixel(ctx, headX + 5 + i, patchY + 3, '#000');
+      }
+    } else { // Reading glasses
+      const glassY = headY + 22;
+      // Frames
+      for (let i = 0; i < 10; i++) {
+        this.drawPixel(ctx, headX + 19 + i, glassY - 1, '#8B4513');
+        this.drawPixel(ctx, headX + 19 + i, glassY + 4, '#8B4513');
+        this.drawPixel(ctx, headX + headWidth - 29 + i, glassY - 1, '#8B4513');
+        this.drawPixel(ctx, headX + headWidth - 29 + i, glassY + 4, '#8B4513');
+      }
+      for (let j = 0; j < 4; j++) {
+        this.drawPixel(ctx, headX + 19, glassY + j, '#8B4513');
+        this.drawPixel(ctx, headX + 28, glassY + j, '#8B4513');
+        this.drawPixel(ctx, headX + headWidth - 29, glassY + j, '#8B4513');
+        this.drawPixel(ctx, headX + headWidth - 20, glassY + j, '#8B4513');
+      }
+      // Bridge
+      for (let i = 29; i < headWidth - 29; i++) {
+        this.drawPixel(ctx, headX + i, glassY + 1, '#8B4513');
+      }
+    }
+  }
+
+  private addFacialFeature(ctx: CanvasRenderingContext2D, headX: number, headY: number, headWidth: number, headHeight: number, rarity: Rarity, random: () => number): void {
+    const featureType = Math.floor(random() * 8);
+
+    if (featureType === 0) { // Scar
+      for (let i = 0; i < 8; i++) {
+        this.drawPixel(ctx, headX + 15 + i, headY + 25 + i / 2, '#8B0000');
+      }
+    } else if (featureType === 1) { // Bandage
+      for (let i = 0; i < 10; i++) {
+        for (let j = 0; j < 3; j++) {
+          this.drawPixel(ctx, headX + 25 + i, headY + 20 + j, '#F5DEB3');
+        }
+      }
+      // Bandage lines
+      this.drawPixel(ctx, headX + 27, headY + 21, '#D2B48C');
+      this.drawPixel(ctx, headX + 30, headY + 21, '#D2B48C');
+      this.drawPixel(ctx, headX + 33, headY + 21, '#D2B48C');
+    } else if (featureType === 2) { // Blush
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 2; j++) {
+          this.drawPixel(ctx, headX + 10 + i, headY + 30 + j, '#FFB6C1');
+          this.drawPixel(ctx, headX + headWidth - 14 + i, headY + 30 + j, '#FFB6C1');
+        }
+      }
+    } else if (featureType === 3) { // Freckles
+      const freckleColor = '#8B4513';
+      this.drawPixel(ctx, headX + 18, headY + 28, freckleColor);
+      this.drawPixel(ctx, headX + 22, headY + 29, freckleColor);
+      this.drawPixel(ctx, headX + 20, headY + 31, freckleColor);
+      this.drawPixel(ctx, headX + headWidth - 18, headY + 28, freckleColor);
+      this.drawPixel(ctx, headX + headWidth - 22, headY + 29, freckleColor);
+      this.drawPixel(ctx, headX + headWidth - 20, headY + 31, freckleColor);
+    } else if (featureType === 4) { // Tears
+      this.drawPixel(ctx, headX + 22, headY + 26, '#87CEEB');
+      this.drawPixel(ctx, headX + 22, headY + 27, '#87CEEB');
+      this.drawPixel(ctx, headX + 22, headY + 28, '#87CEEB');
+      this.drawPixel(ctx, headX + 22, headY + 29, '#87CEEB');
+
+      this.drawPixel(ctx, headX + headWidth - 22, headY + 26, '#87CEEB');
+      this.drawPixel(ctx, headX + headWidth - 22, headY + 27, '#87CEEB');
+    } else if (featureType === 5 && rarity !== 'common') { // Face tattoo
+      const tattooColor = PALETTES[rarity].accent[0];
+      // Small symbol on cheek
+      this.drawPixel(ctx, headX + headWidth - 20, headY + 30, tattooColor);
+      this.drawPixel(ctx, headX + headWidth - 19, headY + 29, tattooColor);
+      this.drawPixel(ctx, headX + headWidth - 19, headY + 31, tattooColor);
+      this.drawPixel(ctx, headX + headWidth - 18, headY + 30, tattooColor);
+    } else if (featureType === 6) { // Mole
+      this.drawPixel(ctx, headX + 35, headY + 35, '#4B2F20');
+      this.drawPixel(ctx, headX + 36, headY + 35, '#4B2F20');
+      this.drawPixel(ctx, headX + 35, headY + 36, '#4B2F20');
+      this.drawPixel(ctx, headX + 36, headY + 36, '#4B2F20');
+    } else if (featureType === 7) { // Stubble
+      for (let i = 0; i < 20; i++) {
+        const stubbleX = headX + 20 + Math.floor(random() * (headWidth - 40));
+        const stubbleY = headY + 45 + Math.floor(random() * 8);
+        this.drawPixel(ctx, stubbleX, stubbleY, '#333');
+      }
+    }
   }
 
   private drawEyebrows(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, type: number): void {
@@ -454,14 +587,46 @@ export class PixelBoboService {
   }
 
   private drawMouth(ctx: CanvasRenderingContext2D, x: number, y: number, type: number): void {
-    const mouthDrawers = [
-      () => this.drawFrown(ctx, x, y),
-      () => this.drawNeutralMouth(ctx, x, y),
-      () => this.drawIronicSmile(ctx, x, y),
-      () => this.drawNeutralMouth(ctx, x, y) // Default case
-    ];
-
-    mouthDrawers[type] || mouthDrawers[3]();
+    if (type === 0) { // Frown
+      this.drawFrown(ctx, x, y);
+    } else if (type === 1) { // Neutral
+      this.drawNeutralMouth(ctx, x, y);
+    } else if (type === 2) { // Ironic smile
+      this.drawIronicSmile(ctx, x, y);
+    } else if (type === 3) { // Open mouth
+      for (let i = -5; i <= 5; i++) {
+        for (let j = 0; j < 4; j++) {
+          if (Math.abs(i) + j < 6) {
+            this.drawPixel(ctx, x + i, y + j, '#000');
+          }
+        }
+      }
+      // Tongue
+      for (let i = -2; i <= 2; i++) {
+        this.drawPixel(ctx, x + i, y + 2, '#FF69B4');
+        this.drawPixel(ctx, x + i, y + 3, '#FF69B4');
+      }
+    } else if (type === 4) { // Gritted teeth
+      for (let i = -6; i <= 6; i++) {
+        this.drawPixel(ctx, x + i, y, '#000');
+        if (i % 2 === 0) {
+          this.drawPixel(ctx, x + i, y + 1, '#FFF');
+        }
+        this.drawPixel(ctx, x + i, y + 2, '#000');
+      }
+    } else if (type === 5) { // Wavy mouth
+      for (let i = -6; i <= 6; i++) {
+        const yOffset = Math.sin(i * 0.5) * 2;
+        this.drawPixel(ctx, x + i, y + Math.round(yOffset), '#000');
+      }
+    } else { // Drooling
+      this.drawNeutralMouth(ctx, x, y);
+      // Drool
+      this.drawPixel(ctx, x + 5, y + 1, '#87CEEB');
+      this.drawPixel(ctx, x + 5, y + 2, '#87CEEB');
+      this.drawPixel(ctx, x + 5, y + 3, '#87CEEB');
+      this.drawPixel(ctx, x + 5, y + 4, '#87CEEB');
+    }
   }
 
   private drawMouthLine(ctx: CanvasRenderingContext2D, x: number, y: number, pattern: Array<{dx: number, dy: number}>): void {
@@ -513,30 +678,290 @@ export class PixelBoboService {
   }
 
   private addBodyAccessory(ctx: CanvasRenderingContext2D, bodyX: number, bodyY: number, bodyWidth: number, bodyHeight: number, rarity: Rarity, random: () => number): void {
-    // Simplified body accessories - just draw a chain necklace for now
-    const chainY = bodyY + 5;
-    const chainColor = rarity === 'legendary' ? '#FFD700' : '#C0C0C0';
-    for (let i = 10; i < bodyWidth - 10; i += 3) {
-      this.drawPixel(ctx, bodyX + i, chainY, chainColor);
-      this.drawPixel(ctx, bodyX + i, chainY + 1, chainColor);
+    const accessoryType = Math.floor(random() * 6);
+
+    if (accessoryType === 0) { // Chain necklace
+      const chainY = bodyY + 5;
+      const chainColor = rarity === 'legendary' ? '#FFD700' : '#C0C0C0';
+      for (let i = 10; i < bodyWidth - 10; i += 3) {
+        this.drawPixel(ctx, bodyX + i, chainY, chainColor);
+        this.drawPixel(ctx, bodyX + i, chainY + 1, chainColor);
+        this.drawPixel(ctx, bodyX + i + 1, chainY + 1, chainColor);
+        this.drawPixel(ctx, bodyX + i + 1, chainY + 2, chainColor);
+      }
+      // Pendant
+      const pendantX = bodyX + bodyWidth / 2 - 3;
+      for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 6; j++) {
+          if (i + j > 2 && i + j < 9) {
+            this.drawPixel(ctx, pendantX + i, chainY + 3 + j, chainColor);
+          }
+        }
+      }
+    } else if (accessoryType === 1) { // T-shirt with design
+      const shirtColor = ['#FF0000', '#0000FF', '#00FF00', '#FFFF00', '#FF00FF'][Math.floor(random() * 5)];
+      for (let i = 5; i < bodyWidth - 5; i++) {
+        for (let j = 10; j < 30; j++) {
+          if (random() > 0.2) {
+            this.drawPixel(ctx, bodyX + i, bodyY + j, shirtColor);
+          }
+        }
+      }
+      // Logo/text
+      const logoX = bodyX + bodyWidth / 2 - 8;
+      const logoY = bodyY + 18;
+      for (let i = 0; i < 16; i++) {
+        if (i % 2 === 0) {
+          this.drawPixel(ctx, logoX + i, logoY, '#FFF');
+          this.drawPixel(ctx, logoX + i, logoY + 4, '#FFF');
+        }
+      }
+    } else if (accessoryType === 2) { // Bow tie
+      const bowtieY = bodyY + 3;
+      const bowtieColor = ['#FF0000', '#000000', '#FFD700', '#FF69B4'][Math.floor(random() * 4)];
+      // Center knot
+      for (let i = -2; i <= 2; i++) {
+        for (let j = 0; j < 3; j++) {
+          this.drawPixel(ctx, 50 + i, bowtieY + j, bowtieColor);
+        }
+      }
+      // Left wing
+      for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 4 - Math.abs(i - 3); j++) {
+          this.drawPixel(ctx, 50 - 3 - i, bowtieY + j, bowtieColor);
+        }
+      }
+      // Right wing
+      for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 4 - Math.abs(i - 3); j++) {
+          this.drawPixel(ctx, 50 + 3 + i, bowtieY + j, bowtieColor);
+        }
+      }
+    } else if (accessoryType === 3 && (rarity === 'epic' || rarity === 'legendary' || rarity === 'mythic')) { // Chest tattoo
+      const tattooColor = PALETTES[rarity].accent[0];
+      // Simple symbol in center of chest
+      const centerX = bodyX + bodyWidth / 2;
+      const centerY = bodyY + 15;
+      // Draw a cool symbol
+      for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 4) {
+        const x = centerX + Math.cos(angle) * 8;
+        const y = centerY + Math.sin(angle) * 8;
+        this.drawPixel(ctx, Math.floor(x), Math.floor(y), tattooColor);
+        this.drawPixel(ctx, Math.floor(x) + 1, Math.floor(y), tattooColor);
+        this.drawPixel(ctx, Math.floor(x), Math.floor(y) + 1, tattooColor);
+      }
+    } else if (accessoryType === 4) { // Suspenders
+      const suspenderColor = '#8B4513';
+      // Left suspender
+      for (let j = 0; j < 30; j++) {
+        this.drawPixel(ctx, bodyX + 10, bodyY + j, suspenderColor);
+        this.drawPixel(ctx, bodyX + 11, bodyY + j, suspenderColor);
+      }
+      // Right suspender
+      for (let j = 0; j < 30; j++) {
+        this.drawPixel(ctx, bodyX + bodyWidth - 11, bodyY + j, suspenderColor);
+        this.drawPixel(ctx, bodyX + bodyWidth - 10, bodyY + j, suspenderColor);
+      }
+    } else { // Badge/pin
+      const badgeX = bodyX + 8;
+      const badgeY = bodyY + 8;
+      const badgeColor = '#FFD700';
+      // Star badge
+      this.drawPixel(ctx, badgeX + 2, badgeY, badgeColor);
+      for (let i = 0; i < 5; i++) {
+        this.drawPixel(ctx, badgeX + i, badgeY + 1, badgeColor);
+      }
+      for (let i = 0; i < 5; i++) {
+        this.drawPixel(ctx, badgeX + i, badgeY + 2, badgeColor);
+      }
+      this.drawPixel(ctx, badgeX, badgeY + 3, badgeColor);
+      this.drawPixel(ctx, badgeX + 1, badgeY + 3, badgeColor);
+      this.drawPixel(ctx, badgeX + 3, badgeY + 3, badgeColor);
+      this.drawPixel(ctx, badgeX + 4, badgeY + 3, badgeColor);
     }
   }
 
   private addHeadAccessory(ctx: CanvasRenderingContext2D, headX: number, headY: number, headWidth: number, headHeight: number, rarity: Rarity, random: () => number): void {
-    const accessoryType = Math.floor(random() * 3);
+    const accessoryType = Math.floor(random() * 12);
 
-    if (accessoryType === 0 && (rarity === 'epic' || rarity === 'legendary' || rarity === 'mythic')) { // Crown
-      const crownColor = rarity === 'legendary' ? '#FFD700' : (rarity === 'mythic' ? '#00FFFF' : '#C77DFF');
-      for (let i = 0; i < 5; i++) {
-        const peakX = headX + headWidth / 2 - 12 + i * 6;
-        for (let j = 0; j < 8; j++) {
-          this.drawPixel(ctx, peakX, headY - 8 + j, crownColor);
-          this.drawPixel(ctx, peakX + 1, headY - 8 + j, crownColor);
+    if (accessoryType === 0) { // Crown
+      if (rarity === 'epic' || rarity === 'legendary' || rarity === 'mythic') {
+        const crownColor = rarity === 'legendary' ? '#FFD700' : (rarity === 'mythic' ? '#00FFFF' : '#C77DFF');
+        for (let i = 0; i < 5; i++) {
+          const peakX = headX + headWidth / 2 - 12 + i * 6;
+          for (let j = 0; j < 8; j++) {
+            this.drawPixel(ctx, peakX, headY - 8 + j, crownColor);
+            this.drawPixel(ctx, peakX + 1, headY - 8 + j, crownColor);
+          }
+          // Jewels
+          this.drawPixel(ctx, peakX, headY - 6, '#FF0000');
         }
-        // Jewels
-        this.drawPixel(ctx, peakX, headY - 6, '#FF0000');
+      }
+    } else if (accessoryType === 1) { // Horns
+      const hornColor = rarity === 'mythic' ? '#FF00FF' : '#8B0000';
+      // Left horn
+      for (let i = 0; i < 6; i++) {
+        this.drawPixel(ctx, headX + 10 - i / 2, headY - 2 - i, hornColor);
+        this.drawPixel(ctx, headX + 11 - i / 2, headY - 2 - i, hornColor);
+      }
+      // Right horn
+      for (let i = 0; i < 6; i++) {
+        this.drawPixel(ctx, headX + headWidth - 11 + i / 2, headY - 2 - i, hornColor);
+        this.drawPixel(ctx, headX + headWidth - 10 + i / 2, headY - 2 - i, hornColor);
+      }
+    } else if (accessoryType === 2) { // Halo
+      if (rarity === 'legendary' || rarity === 'mythic') {
+        const haloY = headY - 10;
+        const haloColor = '#FFFF00';
+        for (let angle = 0; angle < Math.PI * 2; angle += 0.2) {
+          const hx = 50 + Math.cos(angle) * 15;
+          const hy = haloY + Math.sin(angle) * 4;
+          if (hx >= 0 && hx < 100 && hy >= 0 && hy < 100) {
+            this.drawPixel(ctx, Math.floor(hx), Math.floor(hy), haloColor);
+          }
+        }
+      }
+    } else if (accessoryType === 3) { // Headphones
+      const phoneColor = ['#FF0000', '#0000FF', '#00FF00', '#000000'][Math.floor(random() * 4)];
+      // Band
+      for (let i = headX + 5; i < headX + headWidth - 5; i++) {
+        this.drawPixel(ctx, i, headY - 3, phoneColor);
+        this.drawPixel(ctx, i, headY - 2, phoneColor);
+      }
+      // Ear cups
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 12; j++) {
+          this.drawPixel(ctx, headX + 2 + i, headY + 15 + j, phoneColor);
+          this.drawPixel(ctx, headX + headWidth - 10 + i, headY + 15 + j, phoneColor);
+        }
+      }
+    } else if (accessoryType === 4) { // Bandana
+      const bandanaColor = ['#FF0000', '#0000FF', '#000000', '#800080'][Math.floor(random() * 4)];
+      for (let i = headX + 5; i < headX + headWidth - 5; i++) {
+        for (let j = 0; j < 6; j++) {
+          this.drawPixel(ctx, i, headY + j, bandanaColor);
+        }
+      }
+      // Pattern
+      for (let i = headX + 10; i < headX + headWidth - 10; i += 4) {
+        for (let j = 1; j < 5; j += 2) {
+          this.drawPixel(ctx, i, headY + j, '#FFF');
+        }
+      }
+    } else if (accessoryType === 5) { // Beanie variations
+      const beanieColor = ['#FF0000', '#0000FF', '#00FF00', '#FFB6C1', '#800080'][Math.floor(random() * 5)];
+      for (let i = -14; i < 14; i++) {
+        for (let j = -8; j < 5; j++) {
+          if ((i * i) / 196 + ((j + 3) * (j + 3)) / 64 <= 1) {
+            const color = (i + j) % 3 === 0 ? beanieColor : this.adjustColor(beanieColor, 0.8);
+            this.drawPixel(ctx, 50 + i, headY + j - 2, color);
+          }
+        }
+      }
+      // Pom pom
+      this.drawCircle(ctx, 50, headY - 8, 3, '#FFF');
+    } else if (accessoryType === 6) { // Cap with logo
+      const capColor = ['#FF0000', '#0000FF', '#000000', '#00FF00'][Math.floor(random() * 4)];
+      // Cap
+      for (let i = -14; i < 14; i++) {
+        for (let j = -5; j < 2; j++) {
+          if ((i * i) / 196 + (j * j) / 25 <= 1) {
+            this.drawPixel(ctx, 50 + i, headY + j, capColor);
+          }
+        }
+      }
+      // Brim
+      for (let i = -16; i < -5; i++) {
+        this.drawPixel(ctx, 50 + i, headY + 1, this.adjustColor(capColor, 0.7));
+        this.drawPixel(ctx, 50 + i, headY + 2, this.adjustColor(capColor, 0.7));
+      }
+      // Logo
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          this.drawPixel(ctx, 48 + i, headY - 2 + j, '#FFF');
+        }
+      }
+    } else if (accessoryType === 7) { // Cigarette/Joint
+      const mouthY = headY + 48;
+      const smokeType = random() > 0.5 ? 'cigarette' : 'joint';
+      const color = smokeType === 'cigarette' ? '#FFF' : '#F5DEB3';
+
+      for (let i = 0; i < 10; i++) {
+        this.drawPixel(ctx, 55 + i, mouthY, color);
+      }
+      this.drawPixel(ctx, 65, mouthY, '#FF6347');
+      this.drawPixel(ctx, 66, mouthY, '#FF6347');
+
+      // Smoke
+      if (random() > 0.3) {
+        for (let i = 0; i < 3; i++) {
+          this.drawPixel(ctx, 67 + i, mouthY - 1 - i, '#999');
+          this.drawPixel(ctx, 68 + i, mouthY - 2 - i, '#999');
+        }
+      }
+    } else if (accessoryType === 8) { // Third eye
+      if (rarity === 'mythic' || rarity === 'epic') {
+        const thirdEyeX = 50;
+        const thirdEyeY = headY + 10;
+        // Eye shape
+        for (let i = -3; i <= 3; i++) {
+          for (let j = -1; j <= 1; j++) {
+            if (Math.abs(i) + Math.abs(j) <= 3) {
+              this.drawPixel(ctx, thirdEyeX + i, thirdEyeY + j, '#FFF');
+            }
+          }
+        }
+        // Pupil
+        this.drawCircle(ctx, thirdEyeX, thirdEyeY, 1, PALETTES[rarity].accent[0]);
+      }
+    } else if (accessoryType === 9) { // Antennae
+      if (rarity === 'mythic') {
+        // Left antenna
+        for (let i = 0; i < 8; i++) {
+          this.drawPixel(ctx, headX + 20, headY - 2 - i, '#00FF00');
+        }
+        this.drawCircle(ctx, headX + 20, headY - 10, 2, '#00FF00');
+
+        // Right antenna
+        for (let i = 0; i < 8; i++) {
+          this.drawPixel(ctx, headX + headWidth - 20, headY - 2 - i, '#00FF00');
+        }
+        this.drawCircle(ctx, headX + headWidth - 20, headY - 10, 2, '#00FF00');
+      }
+    } else if (accessoryType === 10) { // Mohawk
+      const mohawkColor = ['#FF00FF', '#00FF00', '#FF0000', '#0000FF'][Math.floor(random() * 4)];
+      for (let i = -3; i <= 3; i++) {
+        for (let j = 0; j < 12; j++) {
+          this.drawPixel(ctx, 50 + i, headY - 12 + j, mohawkColor);
+        }
+      }
+    } else { // Flower crown
+      if (rarity === 'rare' || rarity === 'epic') {
+        const flowerColors = ['#FFB6C1', '#FF69B4', '#DDA0DD', '#FFF'];
+        for (let i = 0; i < 5; i++) {
+          const flowerX = headX + 10 + i * 12;
+          const flowerY = headY - 2;
+          const flowerColor = flowerColors[i % flowerColors.length];
+
+          // Petals
+          this.drawPixel(ctx, flowerX, flowerY - 1, flowerColor);
+          this.drawPixel(ctx, flowerX - 1, flowerY, flowerColor);
+          this.drawPixel(ctx, flowerX + 1, flowerY, flowerColor);
+          this.drawPixel(ctx, flowerX, flowerY + 1, flowerColor);
+          // Center
+          this.drawPixel(ctx, flowerX, flowerY, '#FFFF00');
+        }
       }
     }
+  }
+
+  private adjustColor(color: string, factor: number): string {
+    // Simple color adjustment
+    if (color === '#FF0000') return factor < 1 ? '#CC0000' : '#FF3333';
+    if (color === '#0000FF') return factor < 1 ? '#0000CC' : '#3333FF';
+    if (color === '#00FF00') return factor < 1 ? '#00CC00' : '#33FF33';
+    if (color === '#000000') return factor < 1 ? '#000000' : '#333333';
+    return color;
   }
 
   private addRarityEffects(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, rarity: Rarity, headX: number, headY: number, headWidth: number, headHeight: number, bodyY: number, bodyWidth: number, bodyHeight: number, random: () => number): void {
@@ -558,16 +983,175 @@ export class PixelBoboService {
   }
 
   private addMythicBlingChain(ctx: CanvasRenderingContext2D, headX: number, headY: number, headWidth: number, headHeight: number, bodyY: number, bodyWidth: number, bodyHeight: number, random: () => number): void {
-    const chainType = Math.floor(random() * 2); // Simplified to 2 types for now
-    const neckY = bodyY + 5;
-    const chestCenterX = 50;
-    const chestTopY = neckY + 8;
+    const chainType = Math.floor(random() * 5);
+    // Calculate exact chest position based on actual body dimensions
+    const neckY = bodyY + 5; // Just below where body starts
+    const chestCenterX = 50; // Center of the canvas
+    const chestTopY = neckY + 8; // Upper chest area
 
     if (chainType === 0) { // Cuban link chain
       this.drawCubanChain(ctx, chestCenterX, chestTopY, bodyWidth, random);
-    } else { // Tennis chain
+    } else if (chainType === 1) { // Diamond tennis chain
       this.drawTennisChain(ctx, chestCenterX, chestTopY, bodyWidth, random);
+    } else if (chainType === 2) { // Rope chain with $ pendant
+      this.drawRopeChain(ctx, chestCenterX, chestTopY, bodyWidth, random);
+    } else if (chainType === 3) { // Multi-layer chains
+      this.drawMultiLayerChains(ctx, chestCenterX, chestTopY, bodyWidth, random);
+    } else { // Iced out cross chain
+      this.drawCrossChain(ctx, chestCenterX, chestTopY, bodyWidth, random);
     }
+  }
+
+  private drawRopeChain(ctx: CanvasRenderingContext2D, centerX: number, chestY: number, bodyWidth: number, random: () => number): void {
+    const chainY = chestY;
+    // Scale chain to body width
+    const chainSpread = Math.min(bodyWidth * 0.75, 60);
+
+    // Twisted rope pattern
+    for (let i = -chainSpread / 2; i <= chainSpread / 2; i += 1) {
+      const x = centerX + i;
+      const twist = Math.sin(i * 0.8);
+      const y1 = chainY + twist * 2;
+      const y2 = chainY - twist * 2;
+
+      this.drawPixel(ctx, x, y1, '#FFD700');
+      this.drawPixel(ctx, x, y2, '#FFA500');
+
+      // Iced out sections
+      if (i % 10 === 0) {
+        this.drawPixel(ctx, x, y1 - 1, '#FFFFFF');
+        this.drawPixel(ctx, x, y2 + 1, '#FFFFFF');
+      }
+    }
+
+    // Big $ pendant
+    const pendantX = centerX - 4;
+    const pendantY = chainY + 8;
+
+    // $ background circle
+    for (let i = -5; i <= 5; i++) {
+      for (let j = -5; j <= 5; j++) {
+        if (i * i + j * j <= 25) {
+          this.drawPixel(ctx, pendantX + 4 + i, pendantY + 5 + j, '#FFD700');
+        }
+      }
+    }
+
+    // $ symbol
+    for (let i = 0; i < 7; i++) {
+      this.drawPixel(ctx, pendantX + 4, pendantY + 2 + i, '#00FF00');
+    }
+    this.drawPixel(ctx, pendantX + 2, pendantY + 2, '#00FF00');
+    this.drawPixel(ctx, pendantX + 3, pendantY + 2, '#00FF00');
+    this.drawPixel(ctx, pendantX + 5, pendantY + 2, '#00FF00');
+    this.drawPixel(ctx, pendantX + 6, pendantY + 2, '#00FF00');
+
+    this.drawPixel(ctx, pendantX + 2, pendantY + 5, '#00FF00');
+    this.drawPixel(ctx, pendantX + 3, pendantY + 5, '#00FF00');
+    this.drawPixel(ctx, pendantX + 5, pendantY + 5, '#00FF00');
+    this.drawPixel(ctx, pendantX + 6, pendantY + 5, '#00FF00');
+
+    this.drawPixel(ctx, pendantX + 2, pendantY + 8, '#00FF00');
+    this.drawPixel(ctx, pendantX + 3, pendantY + 8, '#00FF00');
+    this.drawPixel(ctx, pendantX + 5, pendantY + 8, '#00FF00');
+    this.drawPixel(ctx, pendantX + 6, pendantY + 8, '#00FF00');
+  }
+
+  private drawMultiLayerChains(ctx: CanvasRenderingContext2D, centerX: number, chestY: number, bodyWidth: number, random: () => number): void {
+    // Three layers of chains
+    const chainColors = ['#FFD700', '#C0C0C0', '#FF69B4'];
+
+    for (let layer = 0; layer < 3; layer++) {
+      const chainY = chestY + layer * 4;
+      const chainColor = chainColors[layer];
+      const amplitude = 3 - layer;
+      // Scale chain spread to body width
+      const chainSpread = Math.min(bodyWidth * (0.65 - layer * 0.08), 50 - layer * 4);
+
+      for (let i = -chainSpread / 2; i <= chainSpread / 2; i += 2) {
+        const x = centerX + i;
+        const y = chainY + Math.sin(i * 0.3) * amplitude;
+
+        this.drawPixel(ctx, x, y, chainColor);
+        this.drawPixel(ctx, x + 1, y, chainColor);
+
+        // Add ice to each layer
+        if (i % 8 === 0) {
+          const iceColors = ['#FFFFFF', '#00FFFF', '#E0E0E0'];
+          this.drawPixel(ctx, x, y - 1, iceColors[layer]);
+        }
+      }
+    }
+
+    // Center charm on middle chain
+    const charmX = centerX;
+    const charmY = chestY + 4; // Adjusted for new chain position
+    // Small crown charm
+    for (let i = -3; i <= 3; i++) {
+      this.drawPixel(ctx, charmX + i, charmY + 2, '#FFD700');
+    }
+    this.drawPixel(ctx, charmX - 3, charmY + 1, '#FFD700');
+    this.drawPixel(ctx, charmX - 1, charmY + 1, '#FFD700');
+    this.drawPixel(ctx, charmX + 1, charmY + 1, '#FFD700');
+    this.drawPixel(ctx, charmX + 3, charmY + 1, '#FFD700');
+    this.drawPixel(ctx, charmX - 2, charmY, '#FFD700');
+    this.drawPixel(ctx, charmX, charmY, '#FFD700');
+    this.drawPixel(ctx, charmX + 2, charmY, '#FFD700');
+  }
+
+  private drawCrossChain(ctx: CanvasRenderingContext2D, centerX: number, chestY: number, bodyWidth: number, random: () => number): void {
+    const chainY = chestY;
+    // Scale chain to body width
+    const chainSpread = Math.min(bodyWidth * 0.7, 56);
+
+    // Heavy chain
+    for (let i = -chainSpread / 2; i <= chainSpread / 2; i += 3) {
+      const x = centerX + i;
+      const y = chainY + Math.sin(i * 0.2) * 1;
+
+      // Chain links
+      for (let dx = 0; dx < 2; dx++) {
+        for (let dy = 0; dy < 2; dy++) {
+          this.drawPixel(ctx, x + dx, y + dy, '#FFD700');
+        }
+      }
+    }
+
+    // Iced out cross pendant
+    const crossX = centerX;
+    const crossY = chainY + 7;
+
+    // Cross outline in gold
+    for (let i = -2; i <= 2; i++) {
+      for (let j = -4; j <= 4; j++) {
+        this.drawPixel(ctx, crossX + i, crossY + j, '#FFD700');
+      }
+    }
+    for (let i = -5; i <= 5; i++) {
+      for (let j = -1; j <= 1; j++) {
+        this.drawPixel(ctx, crossX + i, crossY + j, '#FFD700');
+      }
+    }
+
+    // Diamond center
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -3; j <= 3; j++) {
+        if (Math.abs(j) <= 2 || Math.abs(i) === 0) {
+          this.drawPixel(ctx, crossX + i, crossY + j, '#00FFFF');
+        }
+      }
+    }
+    for (let i = -4; i <= 4; i++) {
+      if (Math.abs(i) > 1) {
+        this.drawPixel(ctx, crossX + i, crossY, '#00FFFF');
+      }
+    }
+
+    // Extra sparkles around the cross
+    this.drawPixel(ctx, crossX - 3, crossY - 3, '#FFFFFF');
+    this.drawPixel(ctx, crossX + 3, crossY - 3, '#FFFFFF');
+    this.drawPixel(ctx, crossX - 3, crossY + 3, '#FFFFFF');
+    this.drawPixel(ctx, crossX + 3, crossY + 3, '#FFFFFF');
   }
 
   private drawCubanChain(ctx: CanvasRenderingContext2D, centerX: number, chestY: number, bodyWidth: number, random: () => number): void {
