@@ -109,3 +109,54 @@
 .combo-dropdown::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .combo-input {
+    padding: 12px 36px 12px 12px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 44px; /* iOS recommended touch target */
+  }
+
+  .combo-toggle {
+    right: 12px;
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .combo-option {
+    padding: 12px;
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .combo-dropdown {
+    max-height: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .combo-input {
+    padding: 10px 32px 10px 10px;
+    font-size: 16px;
+    min-height: 40px;
+  }
+
+  .combo-toggle {
+    right: 10px;
+    padding: 6px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .combo-option {
+    padding: 10px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  .combo-dropdown {
+    max-height: 200px;
+  }
+}
