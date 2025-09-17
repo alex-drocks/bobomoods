@@ -38,7 +38,7 @@ declare global {
 
               <div class="card-header">
                 <div class="card-title" id="cardTitle-{{i}}">{{card.mood}}</div>
-                <div class="card-id-display" id="cardId-{{i}}">{{card.personality.toUpperCase()}}</div>
+                <div class="card-personality" id="cardId-{{i}}">{{card.personality.toUpperCase()}}</div>
               </div>
 
               <div class="card-art">

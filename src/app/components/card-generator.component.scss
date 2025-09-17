@@ -1,6 +1,6 @@
 :host {
   display: block;
-  font-family: 'Courier New', monospace;
+  font-family: 'Roboto', 'Orbitron', sans-serif;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a0f1f 100%);
   min-height: 100vh;
   padding: 20px;
@@ -31,7 +31,7 @@
 
 h1 {
   color: white;
-  font-family: 'Press Start 2P', 'Orbitron', 'Roboto', monospace;
+  font-family: 'Press Start 2P', monospace;
   font-size: 32px;
   text-transform: uppercase;
   letter-spacing: 4px;
@@ -58,9 +58,10 @@ h1 {
 .rarity-btn {
   padding: 10px 20px;
   font-size: 14px;
+  font-family: 'Roboto', 'Orbitron', sans-serif;
   font-weight: bold;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   background: #374151;
   color: white;
   border: none;
@@ -164,6 +165,7 @@ h1 {
   from {
     box-shadow: 0 20px 40px rgba(34, 211, 238, 0.4);
   }
+
   to {
     box-shadow: 0 25px 50px rgba(34, 211, 238, 0.6);
   }
@@ -171,11 +173,11 @@ h1 {
 
 .rarity-badge {
   position: absolute;
-  top: 12px;
+  top: 14px;
   left: 12px;
   padding: 5px 9px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: bold;
   text-transform: uppercase;
   background: rgba(0, 0, 0, 0.5);
@@ -198,7 +200,7 @@ h1 {
 
 .card-title {
   color: #fff;
-  font-family: 'Press Start 2P', 'Orbitron', 'Roboto', monospace;
+  font-family: 'Press Start 2P', monospace;
   font-size: 18px;
   font-weight: bold;
   text-align: center;
@@ -207,12 +209,12 @@ h1 {
   text-shadow: 2px 2px 0px #000;
 }
 
-.card-id-display {
+.card-personality {
   position: absolute;
-  right: 14px;
+  right: 12px;
   color: rgba(255, 255, 255, 0.7);
   font-size: 14px;
-  font-family: monospace;
+  font-family: 'Roboto', 'Orbitron', sans-serif;
   font-weight: bold;
   text-transform: uppercase;
 }
@@ -289,7 +291,8 @@ h1 {
 
 .card-desc {
   color: #ffffff;
-  font-size: 19px;
+  font-size: 18px;
+  font-family: 'Orbitron','Roboto', sans-serif;
   text-align: left;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -394,7 +397,7 @@ h1 {
 
   h2 {
     color: #22d3ee;
-    font-family: 'Press Start 2P', 'Orbitron', 'Roboto', monospace;
+    font-family: 'Press Start 2P', monospace;
     font-size: 24px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -468,7 +471,8 @@ h1 {
   }
 }
 
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
   .card {
     transform-style: preserve-3d;
     backface-visibility: hidden;
