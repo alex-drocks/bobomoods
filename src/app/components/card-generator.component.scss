@@ -44,7 +44,7 @@ h1 {
   color: #9ca3af;
   font-size: 16px;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .rarity-selector {
@@ -385,6 +385,7 @@ h1 {
   justify-content: center;
   flex-wrap: wrap;
   margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 
   button {
     padding: 15px 30px;
@@ -657,11 +658,11 @@ h1 {
   }
 
   .rarity-btn {
-    padding: 10px 14px;
+    padding: 4px 10px;
     font-size: 10px;
     letter-spacing: 0.5px;
     border-radius: 4px;
-    min-height: 40px; /* Better touch target */
+    min-height: 38px; /* Better touch target */
 
     &:active {
       transform: scale(0.96);

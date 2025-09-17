@@ -40,6 +40,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, input
               class="combo-option"
               [class.highlighted]="highlightedIndex() === i"
               (click)="selectOption(option)"
+              (mousedown)="$event.preventDefault()"
               (mouseenter)="highlightedIndex.set(i)"
               role="option"
               [attr.aria-selected]="selectedValue() === option"
@@ -161,12 +162,18 @@ export class ComboBoxComponent {
   protected selectOption(option: string): void {
     this.selectedValue.set(option);
     this.inputValue.set(option);
+    this.highlightedIndex.set(-1);
+    
+    // Immediately close the dropdown
     this.isOpen.set(false);
     this.showAllOptions.set(false);
-    this.highlightedIndex.set(-1);
 
     this.valueChange.emit(option);
-    this.inputElement().nativeElement.focus();
+    
+    // Focus the input after a short delay to ensure dropdown is closed
+    setTimeout(() => {
+      this.inputElement().nativeElement.focus();
+    }, 10);
   }
 
   protected onKeyDown(event: KeyboardEvent): void {
