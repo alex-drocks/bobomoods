@@ -574,6 +574,47 @@ h1 {
   }
 }
 
+.refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-left: 12px;
+  padding: 0;
+  background: #2a2a2a;
+  border: 2px solid #444;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #3a3a3a;
+    border-color: #666;
+    transform: rotate(90deg);
+  }
+
+  &:active {
+    transform: rotate(180deg) scale(0.95);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// Optional: Add animation when clicked
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.refresh-btn.spinning {
+  animation: spin 0.5s ease-in-out;
+}
+
 // Tablet and smaller desktops
 @media (max-width: 1400px) {
   .cards-container {
@@ -774,7 +815,11 @@ h1 {
 
   .rarity-selector {
     gap: 6px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+
+    .refresh-btn {
+      margin-top: 1rem;
+    }
   }
 
   .rarity-btn {
