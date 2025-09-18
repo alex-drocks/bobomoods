@@ -270,7 +270,7 @@ export class CardGeneratorComponent implements OnInit, OnDestroy {
   private downloadBlob(blob: Blob, data: CardData): void {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.download = `bobo-${data.rarity}-${data.mood}-${data.personality}-HD.png`;
+    link.download = `bobo-${data.rarity}-${data.mood}-${data.personality}.png`;
     link.href = url;
     link.click();
     URL.revokeObjectURL(url);
