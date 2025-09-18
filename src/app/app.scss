@@ -1,3 +1,27 @@
+.footer-logos {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  background: rgba(19, 10, 35, 0.35);
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 2px 2px 24px 0 rgba(34, 12, 76, 0.55);
+  z-index: 100;
+}
+
+.footer-logo img {
+  display: block;
+  object-fit: contain;
+  transition: filter 0.2s;
+}
+
+.footer-logo:hover img {
+  filter: brightness(1.2) drop-shadow(0 0 8px #ff0050);
+}
+
 // Component-specific styles for app component
 .app-container {
   min-height: 100vh;
@@ -117,15 +141,12 @@
       font-size: 18px;
       font-weight: 900;
       font-family: 'Press Start 2P', monospace;
-      text-transform: uppercase;
       letter-spacing: 2px;
       color: black;
-      background: linear-gradient(180deg, #a855f7 0%, #8b5cf6 50%, #7c3aed 100%);
       border: 5px solid #000;
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.15s ease;
-      box-shadow: 0 8px 0 #4c1d95, 0 12px 20px rgba(0, 0, 0, 0.6);
       text-shadow: none;
       text-decoration: none;
       -webkit-touch-callout: none;
@@ -134,33 +155,20 @@
       position: relative;
       transform-style: preserve-3d;
 
+
+      background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+      box-shadow: 0 8px 0 #92400e, 0 12px 20px rgba(0, 0, 0, 0.4);
+
       &:hover {
-        transform: translateY(-3px);
-        background: linear-gradient(180deg, #c084fc 0%, #a855f7 50%, #8b5cf6 100%);
-        box-shadow: 0 11px 0 #4c1d95, 0 16px 25px rgba(0, 0, 0, 0.5);
+        background: linear-gradient(180deg, #fde047 0%, #fbbf24 50%, #f59e0b 100%);
+        box-shadow: 0 11px 0 #92400e, 0 16px 25px rgba(0, 0, 0, 0.5);
       }
 
       &:active {
-        transform: translateY(0px);
-        background: linear-gradient(180deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%);
-        box-shadow: 0 3px 0 #4c1d95, 0 6px 15px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(180deg, #d97706 0%, #b45309 50%, #92400e 100%);
+        box-shadow: 0 3px 0 #92400e, 0 6px 15px rgba(0, 0, 0, 0.3);
       }
 
-      // Make the second button (Vibe NFTs) a different color
-      &:nth-child(2) {
-        background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
-        box-shadow: 0 8px 0 #92400e, 0 12px 20px rgba(0, 0, 0, 0.4);
-
-        &:hover {
-          background: linear-gradient(180deg, #fde047 0%, #fbbf24 50%, #f59e0b 100%);
-          box-shadow: 0 11px 0 #92400e, 0 16px 25px rgba(0, 0, 0, 0.5);
-        }
-
-        &:active {
-          background: linear-gradient(180deg, #d97706 0%, #b45309 50%, #92400e 100%);
-          box-shadow: 0 3px 0 #92400e, 0 6px 15px rgba(0, 0, 0, 0.3);
-        }
-      }
 
       @media (max-width: 768px) {
         padding: 16px 24px;
