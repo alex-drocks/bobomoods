@@ -3,7 +3,15 @@ import { Rarity, PALETTES } from '../models/types';
 
 @Injectable({ providedIn: 'root' })
 export class PixelBoboService {
-  private pixelSize = 9;
+  private readonly pixelSize = 9;
+
+  // Constants for better maintainability
+  private static readonly CANVAS_SIZE = 100;
+  private static readonly BACKGROUND_PATTERN_SIZE = 10;
+  private static readonly BACKGROUND_THRESHOLD = 0.7;
+  private static readonly STAR_COUNT = 20;
+  private static readonly AURA_INNER_RADIUS = 30;
+  private static readonly AURA_OUTER_RADIUS = 45;
 
   generateBobo(canvas: HTMLCanvasElement, seed: number, rarity: Rarity): void {
     const ctx = canvas.getContext('2d', { alpha: false });
@@ -101,26 +109,43 @@ export class PixelBoboService {
 
   private drawBackground(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, palette: any, rarity: Rarity, random: () => number): void {
     // Base pattern
-    for (let i = 0; i < 100; i += 10) {
-      for (let j = 0; j < 100; j += 10) {
-        if (random() > 0.7) {
-          const bgColor = palette.background[Math.floor(random() * palette.background.length)];
+    for (let i = 0; i < PixelBoboService.CANVAS_SIZE; i += PixelBoboService.BACKGROUND_PATTERN_SIZE) {
+      for (let j = 0; j < PixelBoboService.CANVAS_SIZE; j += PixelBoboService.BACKGROUND_PATTERN_SIZE) {
+        if (random() > PixelBoboService.BACKGROUND_THRESHOLD) {
+          const bgColor = this.getRandomArrayItem(palette.background, random) as string;
           ctx.fillStyle = bgColor;
-          ctx.fillRect(i * this.pixelSize, j * this.pixelSize, 10 * this.pixelSize, 10 * this.pixelSize);
+          ctx.fillRect(
+            i * this.pixelSize,
+            j * this.pixelSize,
+            PixelBoboService.BACKGROUND_PATTERN_SIZE * this.pixelSize,
+            PixelBoboService.BACKGROUND_PATTERN_SIZE * this.pixelSize
+          );
         }
       }
     }
 
     // Additional patterns for higher rarities
-    if (rarity === 'epic' || rarity === 'legendary' || rarity === 'mythic') {
-      for (let i = 0; i < 20; i++) {
-        const x = Math.floor(random() * 100);
-        const y = Math.floor(random() * 100);
-        const size = 2 + Math.floor(random() * 3);
-        const color = palette.accent[Math.floor(random() * palette.accent.length)];
-        this.drawStar(ctx, x, y, size, color);
-      }
+    if (this.isHighRarity(rarity)) {
+      this.addBackgroundStars(ctx, palette, random);
     }
+  }
+
+  private isHighRarity(rarity: Rarity): boolean {
+    return ['epic', 'legendary', 'mythic'].includes(rarity);
+  }
+
+  private addBackgroundStars(ctx: CanvasRenderingContext2D, palette: any, random: () => number): void {
+    for (let i = 0; i < PixelBoboService.STAR_COUNT; i++) {
+      const x = Math.floor(random() * PixelBoboService.CANVAS_SIZE);
+      const y = Math.floor(random() * PixelBoboService.CANVAS_SIZE);
+      const size = 2 + Math.floor(random() * 3);
+      const color = this.getRandomArrayItem(palette.accent, random) as string;
+      this.drawStar(ctx, x, y, size, color);
+    }
+  }
+
+  private getRandomArrayItem<T>(array: T[], random: () => number): T {
+    return array[Math.floor(random() * array.length)];
   }
 
   private drawAura(ctx: CanvasRenderingContext2D, x: number, y: number, rarity: Rarity, random: () => number): void {
@@ -128,12 +153,12 @@ export class PixelBoboService {
       ['#FFD70033', '#FFC70033', '#FFE70033'] :
       ['#00FFFF33', '#00EFEF33', '#FF00FF33'];
 
-    for (let r = 45; r > 30; r -= 3) {
+    for (let r = PixelBoboService.AURA_OUTER_RADIUS; r > PixelBoboService.AURA_INNER_RADIUS; r -= 3) {
       const color = colors[Math.floor(random() * colors.length)];
       for (let angle = 0; angle < Math.PI * 2; angle += 0.1) {
         const px = x + Math.cos(angle) * r;
         const py = y + Math.sin(angle) * r;
-        if (px >= 0 && px < 100 && py >= 0 && py < 100) {
+        if (px >= 0 && px < PixelBoboService.CANVAS_SIZE && py >= 0 && py < PixelBoboService.CANVAS_SIZE) {
           if (random() > 0.5) {
             this.drawPixel(ctx, Math.floor(px), Math.floor(py), color);
           }
@@ -204,33 +229,47 @@ export class PixelBoboService {
     const earType = Math.floor(random() * 4);
     const earOffset = 13 + Math.floor(random() * 8);
     const earSize = 11 + Math.floor(random() * 5);
+    const leftEarX = headX + earOffset;
+    const rightEarX = headX + headWidth - earOffset;
+    const earY = headY + 6;
 
     // Always draw base ears first
-    this.drawCircle(ctx, headX + earOffset, headY + 6, earSize, bearColor);
-    this.drawCircle(ctx, headX + headWidth - earOffset, headY + 6, earSize, bearColor);
+    this.drawCircle(ctx, leftEarX, earY, earSize, bearColor);
+    this.drawCircle(ctx, rightEarX, earY, earSize, bearColor);
 
     // Then add ear variations/details
-    if (earType === 0) { // Round ears with inner ear
-      this.drawCircle(ctx, headX + earOffset, headY + 6, earSize - 4, '#D2B48C');
-      this.drawCircle(ctx, headX + headWidth - earOffset, headY + 6, earSize - 4, '#D2B48C');
-    } else if (earType === 1) { // Inner ear detail
-      this.drawCircle(ctx, headX + earOffset, headY + 6, earSize - 4, '#FFB6C1');
-      this.drawCircle(ctx, headX + headWidth - earOffset, headY + 6, earSize - 4, '#FFB6C1');
-    } else if (earType === 2) { // Dark inner ears
-      this.drawCircle(ctx, headX + earOffset, headY + 6, earSize - 4, '#4B2F20');
-      this.drawCircle(ctx, headX + headWidth - earOffset, headY + 6, earSize - 4, '#4B2F20');
-    } else { // Pierced ears with inner ear
-      this.drawCircle(ctx, headX + earOffset, headY + 6, earSize - 4, '#D2B48C');
-      this.drawCircle(ctx, headX + headWidth - earOffset, headY + 6, earSize - 4, '#D2B48C');
+    this.drawEarDetails(ctx, leftEarX, rightEarX, earY, earSize, earType, palette);
+  }
+
+  private drawEarDetails(ctx: CanvasRenderingContext2D, leftEarX: number, rightEarX: number, earY: number, earSize: number, earType: number, palette: any): void {
+    const innerEarColors = ['#D2B48C', '#FFB6C1', '#4B2F20'];
+
+    if (earType < 3) {
+      const innerColor = innerEarColors[earType];
+      this.drawCircle(ctx, leftEarX, earY, earSize - 4, innerColor);
+      this.drawCircle(ctx, rightEarX, earY, earSize - 4, innerColor);
+    } else {
+      // Pierced ears with inner ear
+      this.drawCircle(ctx, leftEarX, earY, earSize - 4, '#D2B48C');
+      this.drawCircle(ctx, rightEarX, earY, earSize - 4, '#D2B48C');
       // Earrings
-      const earringColor = palette.accent[0];
-      this.drawPixel(ctx, headX + earOffset, headY + 10, earringColor);
-      this.drawPixel(ctx, headX + earOffset, headY + 11, earringColor);
-      this.drawPixel(ctx, headX + earOffset, headY + 12, earringColor);
-      this.drawPixel(ctx, headX + headWidth - earOffset, headY + 10, earringColor);
-      this.drawPixel(ctx, headX + headWidth - earOffset, headY + 11, earringColor);
-      this.drawPixel(ctx, headX + headWidth - earOffset, headY + 12, earringColor);
+      this.drawEarrings(ctx, leftEarX, rightEarX, earY, palette.accent[0]);
     }
+  }
+
+  private drawEarrings(ctx: CanvasRenderingContext2D, leftEarX: number, rightEarX: number, earY: number, earringColor: string): void {
+    const earringPositions = [
+      { x: leftEarX, y: earY + 10 },
+      { x: leftEarX, y: earY + 11 },
+      { x: leftEarX, y: earY + 12 },
+      { x: rightEarX, y: earY + 10 },
+      { x: rightEarX, y: earY + 11 },
+      { x: rightEarX, y: earY + 12 }
+    ];
+
+    earringPositions.forEach(pos => {
+      this.drawPixel(ctx, pos.x, pos.y, earringColor);
+    });
   }
 
   private drawFacialFeatures(ctx: CanvasRenderingContext2D, headX: number, headY: number, headWidth: number, headHeight: number, rarity: Rarity, palette: any, random: () => number): void {

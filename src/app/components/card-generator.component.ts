@@ -100,8 +100,15 @@ declare global {
   styleUrl: './card-generator.component.scss'
 })
 export class CardGeneratorComponent implements OnInit, OnDestroy {
-  private pixelBoboService = inject(PixelBoboService);
+  private readonly pixelBoboService = inject(PixelBoboService);
   private resizeHandler?: () => void;
+
+  // Constants
+  private static readonly MOBILE_BREAKPOINT = 768;
+  private static readonly MOBILE_CARD_COUNT = 1;
+  private static readonly DESKTOP_CARD_COUNT = 3;
+  private static readonly CANVAS_GENERATION_DELAY = 100;
+  private static readonly DOWNLOAD_SCALE_FACTOR = 4;
 
   protected readonly rarities: readonly Rarity[] = ['common', 'rare', 'epic', 'legendary', 'mythic'];
   protected readonly moods = MOODS;
@@ -117,7 +124,9 @@ export class CardGeneratorComponent implements OnInit, OnDestroy {
     // Listen for window resize to adjust card count
     this.resizeHandler = () => {
       const currentCardCount = this.cardData().length;
-      const expectedCardCount = this.isMobile() ? 1 : 3;
+      const expectedCardCount = this.isMobile()
+        ? CardGeneratorComponent.MOBILE_CARD_COUNT
+        : CardGeneratorComponent.DESKTOP_CARD_COUNT;
 
       if (currentCardCount !== expectedCardCount) {
         this.generateAllBobos();
@@ -139,33 +148,31 @@ export class CardGeneratorComponent implements OnInit, OnDestroy {
   }
 
   private isMobile(): boolean {
-    return window.innerWidth <= 768;
+    return window.innerWidth <= CardGeneratorComponent.MOBILE_BREAKPOINT;
   }
 
   protected generateAllBobos(): void {
-    const newCards: CardData[] = [];
+    const cardCount = this.isMobile()
+      ? CardGeneratorComponent.MOBILE_CARD_COUNT
+      : CardGeneratorComponent.DESKTOP_CARD_COUNT;
 
-    // Create 1 card on mobile, 3 cards on desktop
-    const cardCount = this.isMobile() ? 1 : 3;
-    for (let i = 0; i < cardCount; i++) {
-      const seed = Date.now() + Math.random() * 1000000 + i * 1000;
-      const personality = this.personalities[Math.floor(Math.random() * this.personalities.length)];
-      const mood = this.moods[Math.floor(Math.random() * this.moods.length)];
-
-      newCards.push({
-        seed,
-        rarity: this.selectedRarity(),
-        personality,
-        mood
-      });
-    }
+    const newCards: CardData[] = Array.from({ length: cardCount }, (_, index) => ({
+      seed: Date.now() + Math.random() * 1000000 + index * 1000,
+      rarity: this.selectedRarity(),
+      personality: this.getRandomItem(this.personalities),
+      mood: this.getRandomItem(this.moods)
+    }));
 
     this.cardData.set(newCards);
 
     // Generate bobos after a short delay to ensure DOM is ready
     setTimeout(() => {
       this.generateAllCanvases();
-    }, 100);
+    }, CardGeneratorComponent.CANVAS_GENERATION_DELAY);
+  }
+
+  private getRandomItem<T>(array: readonly T[]): T {
+    return array[Math.floor(Math.random() * array.length)];
   }
 
   private generateAllCanvases(): void {
@@ -197,34 +204,40 @@ export class CardGeneratorComponent implements OnInit, OnDestroy {
   }
 
   protected downloadCard(index: number): void {
-    const card = document.getElementById(`card-${index}`);
-    const data = this.cardData()[index];
+    const cardElement = document.getElementById(`card-${index}`);
+    const cardData = this.cardData()[index];
 
-    if (!card || !data) return;
-
-    if (window.html2canvas) {
-      const scaleFactor = window.devicePixelRatio || 1;
-
-      window.html2canvas(card, {
-        scale: Math.max(4, scaleFactor * 2),
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
-        imageTimeout: 0,
-        removeContainer: false,
-        onclone: (clonedDoc: Document) => {
-          this.setupCanvasForDownload(clonedDoc, index);
-          this.setupElementsForDownload(clonedDoc);
-        }
-      }).then((canvas: HTMLCanvasElement) => {
-        canvas.toBlob((blob: Blob | null) => {
-          if (blob) {
-            this.downloadBlob(blob, data);
-          }
-        }, 'image/png', 1.0);
-      });
+    if (!cardElement || !cardData || !window.html2canvas) {
+      console.warn('Unable to download card: missing element, data, or html2canvas library');
+      return;
     }
+
+    const scaleFactor = Math.max(
+      CardGeneratorComponent.DOWNLOAD_SCALE_FACTOR,
+      (window.devicePixelRatio || 1) * 2
+    );
+
+    window.html2canvas(cardElement, {
+      scale: scaleFactor,
+      logging: false,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null,
+      imageTimeout: 0,
+      removeContainer: false,
+      onclone: (clonedDoc: Document) => {
+        this.setupCanvasForDownload(clonedDoc, index);
+        this.setupElementsForDownload(clonedDoc);
+      }
+    }).then((canvas: HTMLCanvasElement) => {
+      canvas.toBlob((blob: Blob | null) => {
+        if (blob) {
+          this.downloadBlob(blob, cardData);
+        }
+      }, 'image/png', 1.0);
+    }).catch((error: Error) => {
+      console.error('Failed to generate card image:', error);
+    });
   }
 
   private setupCanvasForDownload(clonedDoc: Document, index: number): void {

@@ -142,6 +142,8 @@ export const PERSONALITIES: readonly string[] = [
   'bear',
   'idiot',
   'loser',
+  'noob',
+  'viber',
 ] as const;
 
 export const PALETTES: Palettes = {

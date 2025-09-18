@@ -19,6 +19,42 @@
   }
 }
 
+// Base styles - shared constants
+$mobile-breakpoint: 768px;
+$small-mobile-breakpoint: 480px;
+
+// Shared button styles
+@mixin button-3d-effect($shadow-color: #064e3b, $offset: 6px) {
+  box-shadow: 0 $offset 0 $shadow-color, 0 ($offset + 4px) 15px rgba(0, 0, 0, 0.4);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 ($offset + 2px) 0 $shadow-color, 0 ($offset + 8px) 20px rgba(0, 0, 0, 0.5);
+  }
+
+  &:active {
+    transform: translateY(0px);
+    box-shadow: 0 ($offset - 3px) 0 $shadow-color, 0 ($offset - 1px) 10px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@mixin button-base {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2P', monospace;
+  text-transform: uppercase;
+  border: 4px solid #000;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-shadow: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
 .main-container {
   display: flex;
   flex-direction: column;
@@ -358,39 +394,22 @@ h1 {
 }
 
 .download-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include button-base;
+  @include button-3d-effect(#064e3b);
   padding: 16px 24px;
   font-size: 16px;
   font-weight: 900;
-  font-family: 'Press Start 2P', monospace;
-  text-transform: uppercase;
   letter-spacing: 2px;
   color: black;
   background: linear-gradient(180deg, #10b981 0%, #059669 50%, #047857 100%);
-  border: 4px solid #000;
   border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 6px 0 #064e3b, 0 10px 15px rgba(0, 0, 0, 0.4);
-  text-shadow: none;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
-  position: relative;
-  transform-style: preserve-3d;
 
   &:hover {
-    transform: translateY(-2px);
     background: linear-gradient(180deg, #34d399 0%, #10b981 50%, #059669 100%);
-    box-shadow: 0 8px 0 #064e3b, 0 12px 20px rgba(0, 0, 0, 0.5);
   }
 
   &:active {
-    transform: translateY(0px);
     background: linear-gradient(180deg, #047857 0%, #065f46 50%, #064e3b 100%);
-    box-shadow: 0 2px 0 #064e3b, 0 4px 10px rgba(0, 0, 0, 0.3);
   }
 }
 
