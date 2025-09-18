@@ -1,10 +1,23 @@
 :host {
   display: block;
   font-family: 'Roboto', 'Orbitron', sans-serif;
+  background: #0a0a0a;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a0f1f 100%);
   min-height: 100vh;
   padding: 20px;
   color: white;
+  width: 100%;
+  position: relative;
+
+  @media (max-width: 768px) {
+    background: #0a0a0a;
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a0f1f 100%);
+    background-attachment: scroll;
+    -webkit-background-size: 100% 100%;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    padding: 15px;
+  }
 
   * {
     margin: 0;
