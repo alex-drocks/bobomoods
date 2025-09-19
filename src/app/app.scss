@@ -158,7 +158,7 @@
 
       @media (max-width: 768px) {
         font-size: 1rem;
-        margin: 0 auto 2rem auto;
+        margin: 0 auto 1.5rem auto;
       }
     }
 
@@ -219,29 +219,14 @@
         border-radius: 10px;
         min-height: 48px;
         min-width: 150px;
-
-        &:nth-child(2) {
-          box-shadow: 0 6px 0 #92400e, 0 10px 15px rgba(0, 0, 0, 0.4);
-
-          &:hover {
-            box-shadow: 0 8px 0 #92400e, 0 12px 20px rgba(0, 0, 0, 0.5);
-          }
-
-          &:active {
-            box-shadow: 0 2px 0 #92400e, 0 4px 10px rgba(0, 0, 0, 0.3);
-          }
-        }
-
-        box-shadow: 0 6px 0 #4c1d95,
-        0 10px 15px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 6px 0 #92400e, 0 10px 15px rgba(0, 0, 0, 0.4);
 
         &:hover {
-          box-shadow: 0 8px 0 #4c1d95, 0 12px 20px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 8px 0 #92400e, 0 12px 20px rgba(0, 0, 0, 0.5);
         }
 
         &:active {
-          transform: translateY(0px);
-          box-shadow: 0 2px 0 #4c1d95, 0 4px 10px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 2px 0 #92400e, 0 4px 10px rgba(0, 0, 0, 0.3);
         }
       }
     }
