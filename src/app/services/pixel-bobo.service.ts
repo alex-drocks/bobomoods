@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Rarity, PALETTES } from '../models/types';
 
-// Add new types for enhanced features
+// Add theme property to existing BearTraits interface
 interface BearTraits {
   bodyType: 'normal' | 'chubby' | 'tall' | 'athletic' | 'baby';
   pose: 'front' | 'threequarter' | 'crossed' | 'waving' | 'sitting' | 'dancing';
@@ -11,6 +11,7 @@ interface BearTraits {
   accessories: string[];
   size: 'normal' | 'zoomed' | 'fullbody' | 'mini' | 'closeup';
   props: string[];
+  theme?: 'cool' | 'cute' | 'royal' | 'mystic' | 'party' | 'warrior' | 'scholar' | 'street';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -35,7 +36,7 @@ export class PixelBoboService {
     this.clear(ctx, canvas);
     const palette = PALETTES[rarity];
 
-    // Generate bear traits based on rarity
+    // Generate bear traits based on rarity with improved cohesiveness
     const traits = this.generateTraits(rarity, random);
 
     // Draw enhanced background
@@ -56,21 +57,35 @@ export class PixelBoboService {
   }
 
   private generateTraits(rarity: Rarity, random: () => number): BearTraits {
+    // Choose a primary theme for cohesiveness
+    const theme = this.selectTheme(rarity, random);
+
+    // Generate base traits
     const traits: BearTraits = {
       bodyType: this.selectBodyType(random),
       pose: this.selectPose(rarity, random),
       furPattern: this.selectFurPattern(rarity, random),
       backgroundType: this.selectBackgroundType(rarity, random),
-      accessories: this.selectAccessories(rarity, random),
+      accessories: [],
       size: this.selectSize(rarity, random),
-      props: this.selectProps(rarity, random)
+      props: [],
+      theme: theme
     };
 
-    // Special traits for rare bears
-    if (rarity === 'mythic' && random() < 0.3) {
-      traits.specialTrait = this.selectSpecialTrait(random);
-    } else if (rarity === 'legendary' && random() < 0.2) {
-      traits.specialTrait = ['holographic', 'ghost', 'floating'][Math.floor(random() * 3)] as any;
+    // Apply theme-based constraints for mythic/legendary
+    if (rarity === 'mythic' || rarity === 'legendary') {
+      this.applyThemeConstraints(traits, theme, random);
+    }
+
+    // Select accessories with better compatibility checks
+    traits.accessories = this.selectCompatibleAccessories(traits, rarity, random);
+
+    // Select props that don't clash with backgrounds
+    traits.props = this.selectCompatibleProps(traits, rarity, random);
+
+    // Special traits - more selective for mythic
+    if (this.shouldAddSpecialTrait(rarity, random)) {
+      traits.specialTrait = this.selectCompatibleSpecialTrait(traits, rarity, random);
     }
 
     // One-of-one traits (0.1% chance)
@@ -78,10 +93,239 @@ export class PixelBoboService {
       traits.specialTrait = ['laser', 'invisible', 'pixelshift'][Math.floor(random() * 3)] as any;
     }
 
-    // Apply personality-based trait synergies
+    // Apply personality-based synergies
     this.applyPersonalitySynergies(traits, rarity, random);
 
+    // Final cleanup pass to remove incompatible combinations
+    this.finalizeTraits(traits, rarity);
+
     return traits;
+  }
+
+  private selectTheme(rarity: Rarity, random: () => number): BearTraits['theme'] {
+    const themes: BearTraits['theme'][] = ['cool', 'cute', 'royal', 'mystic', 'party', 'warrior', 'scholar', 'street'];
+
+    if (rarity === 'common' || rarity === 'rare') {
+      return themes[Math.floor(random() * 4)];
+    }
+
+    if (rarity === 'mythic' && random() < 0.3) {
+      // Mythic bears favor mystic/royal themes
+      return random() < 0.5 ? 'mystic' : 'royal';
+    }
+
+    return themes[Math.floor(random() * themes.length)];
+  }
+
+  private applyThemeConstraints(traits: BearTraits, theme: BearTraits['theme'], random: () => number): void {
+    // Constrain combinations based on theme to avoid clashes
+    switch(theme) {
+      case 'mystic':
+        if (random() < 0.5) traits.furPattern = 'gradient';
+        if (random() < 0.3) traits.backgroundType = 'abstract';
+        traits.pose = random() < 0.5 ? 'sitting' : 'front';
+        break;
+      case 'royal':
+        traits.furPattern = 'solid';
+        traits.pose = random() < 0.6 ? 'sitting' : 'front';
+        if (random() < 0.4) traits.backgroundType = 'abstract';
+        break;
+      case 'party':
+        if (random() < 0.5) traits.furPattern = 'rainbow';
+        traits.pose = random() < 0.6 ? 'dancing' : 'waving';
+        break;
+      case 'warrior':
+        traits.furPattern = random() < 0.5 ? 'camo' : 'solid';
+        traits.pose = random() < 0.6 ? 'crossed' : 'front';
+        break;
+      case 'cool':
+        traits.pose = random() < 0.7 ? 'crossed' : 'front';
+        break;
+    }
+  }
+
+  private selectCompatibleAccessories(traits: BearTraits, rarity: Rarity, random: () => number): string[] {
+    const accessories: string[] = [];
+    const availableAccessories = this.getAvailableAccessories(rarity);
+
+    // Limit accessories for mythic to avoid overcrowding
+    const maxAccessories = rarity === 'mythic' ? 3 :
+                          rarity === 'legendary' ? 3 :
+                          rarity === 'epic' ? 2 :
+                          rarity === 'rare' ? 2 : 1;
+
+    const accessoryCount = rarity === 'common' ?
+      (random() < 0.3 ? 1 : 0) :
+      Math.min(1 + Math.floor(random() * 2), maxAccessories);
+
+    // Theme-based accessory preferences
+    const themePreferences: {[key: string]: string[]} = {
+      'cool': ['sunglasses', 'chain', 'cigarette', 'headphones'],
+      'cute': ['bowtie', 'glasses', 'hat'],
+      'royal': ['crown', 'monocle', 'scepter'],
+      'mystic': ['third-eye', 'halo', 'aura'],
+      'party': ['headphones', 'sunglasses', 'chain'],
+      'warrior': ['bandana', 'tattoo', 'horns'],
+      'scholar': ['glasses', 'monocle', 'bowtie'],
+      'street': ['chain', 'bling-chain', 'cap', 'headphones']
+    };
+
+    const preferred = themePreferences[traits.theme || 'cool'] || [];
+
+    for (let i = 0; i < accessoryCount; i++) {
+      // Prioritize theme-appropriate accessories
+      const pool = random() < 0.7 && preferred.length > 0 ?
+        preferred.filter(a => availableAccessories.includes(a)) :
+        availableAccessories;
+
+      if (pool.length === 0) continue;
+
+      const accessory = pool[Math.floor(random() * pool.length)];
+
+      if (!accessories.includes(accessory) &&
+          !this.hasConflict(accessory, accessories) &&
+          this.isAccessoryCompatible(accessory, traits)) {
+        accessories.push(accessory);
+      }
+    }
+
+    return accessories;
+  }
+
+  private isAccessoryCompatible(accessory: string, traits: BearTraits): boolean {
+    // Check trait-specific incompatibilities
+    if (traits.bodyType === 'baby' && ['cigarette', 'tattoo'].includes(accessory)) {
+      return false;
+    }
+
+    if (traits.pose === 'dancing' && ['monocle'].includes(accessory)) {
+      return false;
+    }
+
+    if (traits.furPattern === 'rainbow' && accessory === 'tattoo') {
+      return false;
+    }
+
+    if (traits.specialTrait === 'invisible' &&
+        !['halo', 'third-eye', 'aura'].includes(accessory)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private selectCompatibleProps(traits: BearTraits, rarity: Rarity, random: () => number): string[] {
+    if (rarity === 'common') return [];
+
+    const props: string[] = [];
+    const availableProps = ['money', 'hearts', 'stars', 'butterflies', 'flower', 'bird', 'sparkles', 'clouds'];
+
+    // Limit props for busy backgrounds
+    const maxProps = traits.backgroundType === 'abstract' || traits.backgroundType === 'weather' ? 1 :
+                    rarity === 'mythic' ? 2 : 1;
+
+    const propCount = random() < 0.3 ? Math.min(1 + Math.floor(random() * 2), maxProps) : 0;
+
+    // Theme preferences for props
+    const themeProps: {[key: string]: string[]} = {
+      'party': ['stars', 'hearts', 'money', 'sparkles'],
+      'cute': ['hearts', 'butterflies', 'flower', 'clouds'],
+      'warrior': ['stars', 'sparkles'],
+      'street': ['money', 'stars'],
+      'mystic': ['stars', 'butterflies', 'sparkles'],
+      'royal': ['stars', 'sparkles'],
+      'cool': ['money', 'stars'],
+      'scholar': ['flower', 'bird', 'butterflies']
+    };
+
+    const preferred = themeProps[traits.theme || 'cool'] || availableProps;
+
+    for (let i = 0; i < propCount; i++) {
+      const prop = preferred[Math.floor(random() * preferred.length)];
+      if (!props.includes(prop)) {
+        props.push(prop);
+      }
+    }
+
+    return props;
+  }
+
+  private shouldAddSpecialTrait(rarity: Rarity, random: () => number): boolean {
+    // More conservative with special traits to avoid overcrowding
+    const chances = {
+      common: 0,
+      rare: 0.05,
+      epic: 0.1,
+      legendary: 0.2,
+      mythic: 0.35 // Reduced from original
+    };
+    return random() < chances[rarity];
+  }
+
+  private selectCompatibleSpecialTrait(traits: BearTraits, rarity: Rarity, random: () => number): BearTraits['specialTrait'] | undefined {
+    const availableTraits: BearTraits['specialTrait'][] = [];
+
+    // Theme-based special traits
+    if (traits.theme === 'mystic') {
+      availableTraits.push('floating', 'ghost', 'holographic');
+    } else if (traits.theme === 'party') {
+      availableTraits.push('holographic');
+    } else if (traits.theme === 'warrior') {
+      if (rarity === 'mythic') availableTraits.push('multiarms', 'laser');
+    }
+
+    // Avoid incompatible combinations
+    if (traits.backgroundType !== 'scene') {
+      if (rarity === 'mythic' || rarity === 'legendary') {
+        if (!availableTraits.includes('glitch')) availableTraits.push('glitch');
+      }
+    }
+
+    if (traits.furPattern !== 'rainbow' && traits.furPattern !== 'gradient') {
+      if (!availableTraits.includes('holographic')) availableTraits.push('holographic');
+    }
+
+    if (traits.pose !== 'sitting' && !traits.accessories.includes('wings')) {
+      if (!availableTraits.includes('floating')) availableTraits.push('floating');
+    }
+
+    if (availableTraits.length === 0) return undefined;
+
+    return availableTraits[Math.floor(random() * availableTraits.length)];
+  }
+
+  private finalizeTraits(traits: BearTraits, rarity: Rarity): void {
+    // Final cleanup to ensure cohesiveness
+
+    // Remove incompatible special trait combinations
+    if (traits.specialTrait === 'invisible') {
+      traits.accessories = traits.accessories.filter(a =>
+        ['halo', 'third-eye', 'aura'].includes(a)
+      );
+      traits.props = []; // Props won't show on invisible bears
+    }
+
+    if (traits.specialTrait === 'ghost') {
+      traits.accessories = traits.accessories.filter(a =>
+        !['chain', 'bling-chain', 'cigarette'].includes(a)
+      );
+    }
+
+    if (traits.specialTrait === 'floating' && traits.pose === 'sitting') {
+      traits.pose = 'front';
+    }
+
+    // Limit visual noise for mythic
+    if (rarity === 'mythic') {
+      // Don't combine too many complex elements
+      if (traits.furPattern === 'rainbow' && traits.backgroundType === 'abstract') {
+        traits.backgroundType = 'pattern';
+      }
+
+      if (traits.specialTrait && traits.accessories.length > 2) {
+        traits.accessories = traits.accessories.slice(0, 2);
+      }
+    }
   }
 
   private applyPersonalitySynergies(traits: BearTraits, rarity: Rarity, random: () => number): void {
@@ -1141,17 +1385,17 @@ export class PixelBoboService {
         case 'butterflies':
           this.drawButterflies(ctx, random);
           break;
-        case 'sword':
-          this.drawSword(ctx, random);
-          break;
-        case 'phone':
-          this.drawPhone(ctx, random);
-          break;
         case 'flower':
           this.drawFlower(ctx, random);
           break;
         case 'bird':
           this.drawBird(ctx, palette, random);
+          break;
+        case 'sparkles':
+          this.drawSparkles(ctx, palette, random);
+          break;
+        case 'clouds':
+          this.drawSmallClouds(ctx, random);
           break;
       }
     });
@@ -1350,6 +1594,49 @@ export class PixelBoboService {
     this.drawPixel(ctx, x + 4, y + 1, '#000');
   }
 
+  private drawSparkles(ctx: CanvasRenderingContext2D, palette: any, random: () => number): void {
+    for (let s = 0; s < 15; s++) {
+      const x = Math.floor(random() * 100);
+      const y = Math.floor(random() * 100);
+      const sparkleColor = palette.accent[Math.floor(random() * palette.accent.length)];
+
+      // Center dot
+      this.drawPixel(ctx, x, y, sparkleColor);
+
+      // Sparkle pattern (smaller and more subtle)
+      if (random() > 0.5) {
+        this.drawPixel(ctx, x - 1, y, sparkleColor + '66');
+        this.drawPixel(ctx, x + 1, y, sparkleColor + '66');
+        this.drawPixel(ctx, x, y - 1, sparkleColor + '66');
+        this.drawPixel(ctx, x, y + 1, sparkleColor + '66');
+      }
+
+      // Occasional diagonal points
+      if (random() > 0.8) {
+        this.drawPixel(ctx, x - 1, y - 1, sparkleColor + '44');
+        this.drawPixel(ctx, x + 1, y + 1, sparkleColor + '44');
+      }
+    }
+  }
+
+  private drawSmallClouds(ctx: CanvasRenderingContext2D, random: () => number): void {
+    for (let c = 0; c < 3; c++) {
+      const cloudX = 10 + Math.floor(random() * 80);
+      const cloudY = 10 + Math.floor(random() * 30);
+      const cloudColor = '#FFFFFF66';
+
+      // Small fluffy cloud shape
+      this.drawCircle(ctx, cloudX, cloudY, 3, cloudColor);
+      this.drawCircle(ctx, cloudX + 4, cloudY, 3, cloudColor);
+      this.drawCircle(ctx, cloudX + 2, cloudY - 2, 2, cloudColor);
+
+      // Add some wisps
+      for (let i = -2; i < 7; i++) {
+        this.drawPixel(ctx, cloudX + i, cloudY + 2, cloudColor);
+      }
+    }
+  }
+
   private drawEnhancedBackground(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, palette: any, rarity: Rarity, backgroundType: BearTraits['backgroundType'], random: () => number): void {
     switch (backgroundType) {
       case 'scene':
@@ -1446,45 +1733,42 @@ export class PixelBoboService {
           this.drawPixel(ctx, Math.floor(rx), Math.floor(ry), '#FFD700');
         }
       }
-    } else { // Underwater
-      // Water gradient
+    } else { // Mountain landscape
+      // Sky gradient
       const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#006994');
-      gradient.addColorStop(1, '#00334d');
+      gradient.addColorStop(0, '#FFB6C1');
+      gradient.addColorStop(0.5, '#DDA0DD');
+      gradient.addColorStop(1, '#E6E6FA');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Bubbles
-      for (let b = 0; b < 20; b++) {
-        const bubbleX = Math.floor(random() * 100);
-        const bubbleY = Math.floor(random() * 100);
-        const bubbleSize = 2 + Math.floor(random() * 4);
+      // Mountains in background
+      for (let m = 0; m < 3; m++) {
+        const peakX = 20 + m * 30 + Math.floor(random() * 10);
+        const peakY = 30 + Math.floor(random() * 20);
+        const mountainWidth = 40 + Math.floor(random() * 20);
 
-        for (let angle = 0; angle < Math.PI * 2; angle += 0.3) {
-          const bx = bubbleX + Math.cos(angle) * bubbleSize;
-          const by = bubbleY + Math.sin(angle) * bubbleSize;
-          this.drawPixel(ctx, Math.floor(bx), Math.floor(by), '#87CEEB66');
-        }
-      }
-
-      // Fish instead of seaweed
-      for (let f = 0; f < 3; f++) {
-        const fishX = 10 + Math.floor(random() * 80);
-        const fishY = 50 + Math.floor(random() * 40);
-        const fishColor = ['#FF6B35', '#FFD700', '#FF69B4'][f % 3];
-
-        // Fish body
-        for (let i = 0; i < 6; i++) {
-          for (let j = 0; j < 3; j++) {
-            this.drawPixel(ctx, fishX + i, fishY + j, fishColor);
+        // Draw mountain triangle
+        const color = m === 0 ? '#8B7D8B' : m === 1 ? '#9C9C9C' : '#A9A9A9';
+        for (let y = peakY; y < 80; y++) {
+          const width = ((y - peakY) / (80 - peakY)) * mountainWidth;
+          for (let x = -width/2; x <= width/2; x++) {
+            if (peakX + x >= 0 && peakX + x < 100) {
+              this.drawPixel(ctx, Math.floor(peakX + x), y, color);
+            }
           }
         }
-        // Fish tail
-        this.drawPixel(ctx, fishX - 1, fishY, fishColor);
-        this.drawPixel(ctx, fishX - 2, fishY + 1, fishColor);
-        this.drawPixel(ctx, fishX - 1, fishY + 2, fishColor);
-        // Fish eye
-        this.drawPixel(ctx, fishX + 4, fishY + 1, '#000');
+
+        // Snow caps
+        const snowLine = peakY + 10;
+        for (let y = peakY; y < snowLine; y++) {
+          const width = ((y - peakY) / (80 - peakY)) * mountainWidth;
+          for (let x = -width/2; x <= width/2; x++) {
+            if (peakX + x >= 0 && peakX + x < 100) {
+              this.drawPixel(ctx, Math.floor(peakX + x), y, '#FFFFFF');
+            }
+          }
+        }
       }
     }
   }
@@ -1904,25 +2188,143 @@ export class PixelBoboService {
   }
 
   private drawBackground(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, palette: any, rarity: Rarity, random: () => number): void {
-    // Base pattern
-    for (let i = 0; i < PixelBoboService.CANVAS_SIZE; i += PixelBoboService.BACKGROUND_PATTERN_SIZE) {
-      for (let j = 0; j < PixelBoboService.CANVAS_SIZE; j += PixelBoboService.BACKGROUND_PATTERN_SIZE) {
-        if (random() > PixelBoboService.BACKGROUND_THRESHOLD) {
-          const bgColor = this.getRandomArrayItem(palette.background, random) as string;
-          ctx.fillStyle = bgColor;
-          ctx.fillRect(
-            i * this.pixelSize,
-            j * this.pixelSize,
-            PixelBoboService.BACKGROUND_PATTERN_SIZE * this.pixelSize,
-            PixelBoboService.BACKGROUND_PATTERN_SIZE * this.pixelSize
-          );
+    const patternType = Math.floor(random() * 8); // More pattern options
+
+    if (patternType === 0) { // Original dot pattern
+      for (let i = 0; i < PixelBoboService.CANVAS_SIZE; i += PixelBoboService.BACKGROUND_PATTERN_SIZE) {
+        for (let j = 0; j < PixelBoboService.CANVAS_SIZE; j += PixelBoboService.BACKGROUND_PATTERN_SIZE) {
+          if (random() > PixelBoboService.BACKGROUND_THRESHOLD) {
+            const bgColor = this.getRandomArrayItem(palette.background, random) as string;
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(
+              i * this.pixelSize,
+              j * this.pixelSize,
+              PixelBoboService.BACKGROUND_PATTERN_SIZE * this.pixelSize,
+              PixelBoboService.BACKGROUND_PATTERN_SIZE * this.pixelSize
+            );
+          }
+        }
+      }
+    } else if (patternType === 1) { // Subtle gradient
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      const color1 = palette.background[0];
+      const color2 = palette.background[1] || this.adjustColor(color1, 0.8);
+      gradient.addColorStop(0, color1);
+      gradient.addColorStop(1, color2);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else if (patternType === 2) { // Soft diagonal stripes
+      ctx.fillStyle = palette.background[0];
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const stripeColor = palette.background[1] || this.adjustColor(palette.background[0], 0.9);
+      for (let i = -100; i < 200; i += 20) {
+        for (let j = 0; j < 100; j++) {
+          for (let k = 0; k < 8; k++) {
+            const x = i + j - k;
+            const y = j;
+            if (x >= 0 && x < 100 && y >= 0 && y < 100) {
+              this.drawPixel(ctx, x, y, stripeColor + '33');
+            }
+          }
+        }
+      }
+    } else if (patternType === 3) { // Minimal dots
+      ctx.fillStyle = palette.background[0];
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < 30; i++) {
+        const x = Math.floor(random() * 100);
+        const y = Math.floor(random() * 100);
+        const dotColor = palette.background[1] || palette.accent[0];
+        this.drawPixel(ctx, x, y, dotColor + '44');
+      }
+    } else if (patternType === 4) { // Soft grid
+      ctx.fillStyle = palette.background[0];
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const gridColor = this.adjustColor(palette.background[0], 0.85);
+      // Horizontal lines
+      for (let y = 10; y < 100; y += 15) {
+        for (let x = 0; x < 100; x++) {
+          this.drawPixel(ctx, x, y, gridColor + '22');
+        }
+      }
+      // Vertical lines
+      for (let x = 10; x < 100; x += 15) {
+        for (let y = 0; y < 100; y++) {
+          this.drawPixel(ctx, x, y, gridColor + '22');
+        }
+      }
+    } else if (patternType === 5) { // Radial fade
+      const centerX = 50;
+      const centerY = 50;
+      ctx.fillStyle = palette.background[0];
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const fadeColor = palette.background[1] || palette.accent[0];
+      for (let r = 60; r > 30; r -= 5) {
+        for (let angle = 0; angle < Math.PI * 2; angle += 0.05) {
+          const x = centerX + Math.cos(angle) * r;
+          const y = centerY + Math.sin(angle) * r;
+          if (x >= 0 && x < 100 && y >= 0 && y < 100) {
+            const opacity = ((60 - r) / 30) * 0.2;
+            const alphaHex = Math.floor(opacity * 255).toString(16).padStart(2, '0');
+            this.drawPixel(ctx, Math.floor(x), Math.floor(y), fadeColor + alphaHex);
+          }
+        }
+      }
+    } else if (patternType === 6) { // Soft noise
+      for (let x = 0; x < 100; x++) {
+        for (let y = 0; y < 100; y++) {
+          const noise = random();
+          const baseColor = palette.background[0];
+          const adjustedColor = this.adjustColor(baseColor, 0.95 + noise * 0.1);
+          this.drawPixel(ctx, x, y, adjustedColor);
+        }
+      }
+    } else { // Minimal corner accents
+      ctx.fillStyle = palette.background[0];
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const accentColor = palette.accent[0] + '22';
+      // Top-left corner
+      for (let i = 0; i < 20; i++) {
+        for (let j = 0; j < 20 - i; j++) {
+          this.drawPixel(ctx, i, j, accentColor);
+        }
+      }
+      // Bottom-right corner
+      for (let i = 80; i < 100; i++) {
+        for (let j = 80; j < 100; j++) {
+          if (i + j > 160) {
+            this.drawPixel(ctx, i, j, accentColor);
+          }
         }
       }
     }
 
-    // Additional patterns for higher rarities
-    if (this.isHighRarity(rarity)) {
-      this.addBackgroundStars(ctx, palette, random);
+    // Additional patterns for higher rarities (but subtle)
+    if (this.isHighRarity(rarity) && random() > 0.5) {
+      this.addSubtleBackgroundAccents(ctx, palette, random);
+    }
+  }
+
+  private addSubtleBackgroundAccents(ctx: CanvasRenderingContext2D, palette: any, random: () => number): void {
+    // Add very subtle sparkles
+    for (let i = 0; i < 10; i++) {
+      const x = Math.floor(random() * PixelBoboService.CANVAS_SIZE);
+      const y = Math.floor(random() * PixelBoboService.CANVAS_SIZE);
+      const color = this.getRandomArrayItem(palette.accent, random) as string;
+      this.drawPixel(ctx, x, y, color + '33');
+
+      // Small cross pattern for sparkle
+      if (random() > 0.7) {
+        this.drawPixel(ctx, x - 1, y, color + '22');
+        this.drawPixel(ctx, x + 1, y, color + '22');
+        this.drawPixel(ctx, x, y - 1, color + '22');
+        this.drawPixel(ctx, x, y + 1, color + '22');
+      }
     }
   }
 
@@ -2442,7 +2844,7 @@ export class PixelBoboService {
     // Tears streaming down
     for (let i = 0; i < 8; i++) {
       this.drawPixel(ctx, x1 + 4, y1 + 5 + i, '#87CEEB');
-      this.drawPixel(ctx, x1 + 5, y1 + 5 + i, '#87CEEBBCC');
+      this.drawPixel(ctx, x1 + 5, y1 + 5 + i, '#87CEEBCC');
       this.drawPixel(ctx, x2 + 4, y2 + 5 + i, '#87CEEB');
       this.drawPixel(ctx, x2 + 3, y2 + 5 + i, '#87CEEBCC');
     }
