@@ -306,6 +306,23 @@ h1 {
     -webkit-font-smoothing: none;
     object-fit: contain;
   }
+
+  .card-art-watermark {
+    position: absolute;
+    bottom: 4px;
+    left: 16px;
+    color: #f9fafb7c;
+    opacity: 0.5;
+    font-family: monospace;
+    font-size: 3px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+    z-index: 2;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.6), 0 0 6px rgba(0, 0, 0, 0.8);
+  }
 }
 
 .card.common .card-art {
@@ -711,6 +728,13 @@ h1 {
 
   .card-art {
     width: 100%;
+
+    .card-art-watermark {
+      top: 8px;
+      left: 8px;
+      padding: 3px 6px;
+      font-size: 8px;
+    }
   }
 
   .card-footer {
@@ -902,6 +926,14 @@ h1 {
 
   .card-art {
     width: 100%;
+
+    .card-art-watermark {
+      top: 6px;
+      left: 6px;
+      padding: 2px 5px;
+      font-size: 7px;
+      border-radius: 4px;
+    }
   }
 
   .card-footer {

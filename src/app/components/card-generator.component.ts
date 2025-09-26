@@ -50,6 +50,7 @@ declare global {
               </div>
 
               <div class="card-art">
+                <span class="card-art-watermark" aria-hidden="true">v2</span>
                 <canvas
                   #canvas
                   id="boboCanvas-{{i}}"
